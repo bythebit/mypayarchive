@@ -200,22 +200,22 @@
             justify-content: space-between;
             align-items: center;
         }
+        
+        /* 십자키 스타일 수정 (Flex로 가로 배치) */
         .d-pad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 5px; width: 130px; height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px; /* 버튼 사이 간격 */
         }
+        
         .ctrl-btn {
             background: #111; border: 2px solid var(--primary-color); color: var(--primary-color);
             border-radius: 10px; display: flex; justify-content: center; align-items: center;
-            font-size: 1.5rem; font-weight: bold; box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+            /* 기본 크기는 미디어 쿼리에서 재정의 */
+            font-weight: bold; box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
         }
         .ctrl-btn:active { background: #004400; transform: scale(0.95); }
-        .btn-up { grid-column: 2; grid-row: 1; }
-        .btn-left { grid-column: 1; grid-row: 2; }
-        .btn-right { grid-column: 3; grid-row: 2; }
-        .btn-down { grid-column: 2; grid-row: 3; }
         
         .rotate-wrapper { width: 90px; height: 90px; display: flex; justify-content: center; align-items: center; }
         .btn-rotate {
@@ -269,9 +269,16 @@
             #touch-controls {
                 grid-area: controls;
                 display: flex;
-                max-width: 400px;
+                max-width: 450px;
                 justify-self: center;
                 margin-bottom: 1vh; 
+            }
+            
+            /* 모바일 버튼 크기 조정 (50% 확대) */
+            .ctrl-btn {
+                width: 65px; /* 기존 약 43px -> 65px */
+                height: 65px;
+                font-size: 2rem; /* 폰트도 키움 */
             }
 
             #pc-guide-wrapper { display: none; }
@@ -384,11 +391,11 @@
 
         <!-- 모바일 터치 컨트롤러 (하단) -->
         <div id="touch-controls">
+            <!-- 십자키 -> 가로형 화살표로 변경 -->
             <div class="d-pad">
-                <div class="ctrl-btn btn-up" id="btn-up">↑</div>
-                <div class="ctrl-btn btn-left" id="btn-left">←</div>
-                <div class="ctrl-btn btn-right" id="btn-right">→</div>
-                <div class="ctrl-btn btn-down" id="btn-down">↓</div>
+                <div class="ctrl-btn" id="btn-left">←</div>
+                <div class="ctrl-btn" id="btn-down">↓</div>
+                <div class="ctrl-btn" id="btn-right">→</div>
             </div>
             <div class="rotate-wrapper">
                 <button class="ctrl-btn btn-rotate" id="btn-rotate">↻</button>
@@ -971,7 +978,7 @@
 
         addTouchListener('btn-left', controlLeft);
         addTouchListener('btn-right', controlRight);
-        addTouchListener('btn-up', controlRotate); 
+        // btn-up 리스너 삭제 (존재하지 않는 ID)
         addTouchListener('btn-rotate', controlRotate);
         addTouchListener('btn-down', controlDown);
 

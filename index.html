@@ -5,110 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Y2K TETRIS 2000</title>
     <style>
-        /* 2000년대 사이버 펑크/레트로 스타일 */
+        /* --- CSS 변수 설정: 크기 동기화 --- */
+        :root {
+            /* 게임 화면 높이 (화면 높이의 55%) */
+            --game-height: 55vh;
+            /* 게임 비율 1:2 (10칸:20칸)에 맞춘 너비 자동 계산 */
+            --game-width: calc(var(--game-height) * 0.5);
+        }
+
+        /* --- 기본 설정 및 Y2K 테마 --- */
+        * {
+            box-sizing: border-box;
+            user-select: none; /* 텍스트 선택 방지 */
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             background-color: #000000;
             color: #00ff00;
             font-family: "Courier New", Courier, monospace;
             display: flex;
+            flex-direction: column;
+            /* 변경: 요소들을 중앙으로 모으고 간격(gap)을 줌 */
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            gap: 10px;
+            
+            height: 100vh;
+            height: 100dvh; /* 모바일 높이 대응 */
             margin: 0;
-            overflow: hidden; /* 스크롤 방지 */
+            overflow: hidden;
             background-image: 
                 linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
             background-size: 20px 20px;
-            touch-action: none; /* 모바일 터치 제스처 방지 */
+            touch-action: none;
+            padding: 10px 0;
         }
 
-        #game-container {
+        /* --- 1. 상단: 점수판 (Header) --- */
+        #header-panel {
             display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-        }
-
-        #game-wrapper {
-            display: flex;
-            border: 4px solid #00ff00;
-            padding: 10px;
-            background-color: #111;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-            position: relative;
-        }
-
-        /* 캔버스 기본 설정 */
-        canvas {
-            border: 2px solid #555;
-            background-color: #000;
-            display: block;
-            image-rendering: pixelated; /* 픽셀 아트 선명하게 */
-        }
-
-        #ui-panel {
-            margin-left: 20px;
-            width: 150px;
-            display: flex;
-            flex-direction: column;
+            /* 너비를 게임 화면과 동일하게 변수로 설정 */
+            width: var(--game-width);
             justify-content: space-between;
-            height: 400px; /* 캔버스 높이와 맞춤 (PC) */
-        }
-
-        h1 {
-            font-size: 24px;
-            margin: 0 0 20px 0;
-            text-align: center;
-            text-shadow: 2px 2px #ff00ff;
-            line-height: 1.2;
+            background: #001100;
+            border: 2px solid #00ff00;
+            padding: 8px 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+            /* 마진 제거 (gap으로 제어) */
+            margin-bottom: 0; 
+            z-index: 5;
         }
 
         .stat-box {
-            border: 1px solid #00ff00;
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #001100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 10px;
             color: #ff00ff;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .stat-value {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
-            text-align: right;
         }
 
-        #controls-info {
-            font-size: 11px;
-            line-height: 1.5;
-            color: #aaa;
-            border-top: 1px dashed #555;
-            padding-top: 10px;
-            margin-top: auto;
+        /* --- 2. 상단: 게임 화면 (Game Wrapper) --- */
+        #game-wrapper {
+            position: relative;
+            border: 4px solid #00ff00;
+            background-color: #111;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            
+            /* CSS 변수로 크기 고정 */
+            height: var(--game-height);
+            width: var(--game-width);
         }
 
-        /* 레트로 버튼 스타일 */
-        button {
-            background-color: #000;
-            color: #00ff00;
-            border: 2px outset #00ff00;
-            padding: 10px;
-            font-family: inherit;
-            font-weight: bold;
-            cursor: pointer;
+        canvas {
             width: 100%;
-            margin-top: 10px;
-            text-transform: uppercase;
-            -webkit-tap-highlight-color: transparent; /* 모바일 탭 하이라이트 제거 */
-        }
-
-        button:active {
-            border: 2px inset #00ff00;
-            background-color: #003300;
+            height: 100%;
+            display: block;
+            image-rendering: pixelated;
         }
 
         /* 게임 오버 오버레이 */
@@ -127,234 +110,197 @@
         }
 
         #game-over h2 {
-            font-size: 30px;
+            font-size: 24px;
             color: #ff0000;
             text-shadow: 0 0 10px #ff0000;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             animation: blink 1s infinite;
         }
 
-        .result-box {
-            border: 2px solid #00ff00;
-            padding: 15px;
-            margin-bottom: 20px;
-            background-color: #001100;
-            text-align: center;
-            width: 70%;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-        }
-
-        .result-box p {
-            margin: 10px 0;
+        .result-info {
             color: #fff;
+            text-align: center;
+            margin-bottom: 15px;
             font-size: 14px;
         }
 
-        .result-box span {
+        .result-info span {
             color: #ff00ff;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 18px;
             display: block;
-            margin-top: 5px;
+        }
+
+        .retry-btn {
+            background: #000;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 5px 15px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* --- 3. 중간: 시작 버튼 (Middle) --- */
+        #mid-panel {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            /* 게임 화면 바로 아래에 위치 */
+            margin: 5px 0; 
+            z-index: 5;
+        }
+
+        #start-btn {
+            background-color: #000;
+            color: #00ff00;
+            border: 2px outset #00ff00;
+            padding: 8px 0;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            text-transform: uppercase;
+            /* 너비도 게임 화면과 비슷하게 맞춤 */
+            width: var(--game-width); 
+        }
+
+        #start-btn:active {
+            border-style: inset;
+            background-color: #003300;
+        }
+
+        /* --- 4. 하단: 컨트롤러 (Bottom Controls) --- */
+        #controls-container {
+            display: flex;
+            width: 100%;
+            /* 컨트롤러는 조작 편의를 위해 게임 화면보다 넓게 사용 */
+            max-width: 400px; 
+            padding: 0 20px;
+            justify-content: space-between;
+            align-items: center;
+            /* flex: 1 제거하여 불필요한 공백 삭제 */
+            margin-top: 5px; 
+        }
+
+        /* 십자키 (D-Pad) 레이아웃 */
+        .d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 140px;
+            height: 140px;
+            transform: rotate(0deg);
+        }
+
+        /* 버튼 공통 스타일 */
+        .ctrl-btn {
+            background: #111;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .ctrl-btn:active {
+            background: #004400;
+            box-shadow: inset 0 0 5px #00ff00;
+            transform: scale(0.95);
+        }
+
+        /* 십자키 배치 */
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 3; }
+
+        /* 회전 버튼 (우측 큰 원형) */
+        .rotate-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 120px;
+            height: 120px;
+        }
+
+        .btn-rotate {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 3px solid #ff00ff; /* 마젠타색 포인트 */
+            color: #ff00ff;
+            background: #220022;
+            font-size: 30px;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+        }
+
+        .btn-rotate:active {
+            background: #440044;
+            box-shadow: inset 0 0 10px #ff00ff;
+            transform: scale(0.95);
         }
 
         @keyframes blink {
             50% { opacity: 0; }
         }
-
-        /* 모바일 컨트롤러 (기본 숨김) */
-        #mobile-controls {
-            display: none;
-            width: 100%;
-            margin-top: 15px;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .control-group {
-            display: flex;
-            align-items: center;
-            /* gap은 모바일 쿼리에서 제어 */
-        }
-
-        .d-pad-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #111;
-            border: 2px solid #00ff00;
-            color: #00ff00;
-            box-shadow: 0 0 5px #00ff00;
-            user-select: none;
-            margin: 0 5px; /* 기본 간격 */
-        }
-
-        .d-pad-btn:active {
-            background: #003300;
-            box-shadow: inset 0 0 5px #00ff00;
-        }
-
-        .rotate-btn {
-            border-color: #ff00ff;
-            color: #ff00ff;
-            box-shadow: 0 0 5px #ff00ff;
-        }
-        
-        .rotate-btn:active {
-            background: #330033;
-        }
-
-        /* 모바일 반응형 스타일 (강력하게 수정됨) */
-        @media (max-width: 600px) {
-            body {
-                flex-direction: column;
-                justify-content: space-evenly; /* 요소들을 화면에 고르게 분배 */
-                padding: 10px 0 20px 0; /* 상하 여백 */
-                box-sizing: border-box;
-                height: 100vh;
-                height: 100dvh; /* 모바일 브라우저 주소창 대응 */
-            }
-
-            #game-container {
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                flex: 1; /* 남은 공간 차지 */
-                min-height: 0; /* flex 자식 스크롤 방지 */
-            }
-
-            /* 1. 상단 정보창 (점수판) */
-            #ui-panel {
-                order: -1; /* 게임 화면 위로 배치 */
-                width: 90%;
-                max-width: 400px;
-                height: auto;
-                margin: 0 0 10px 0;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0;
-            }
-
-            h1 { display: none; } /* 공간 확보를 위해 타이틀 숨김 */
-            #controls-info { display: none; }
-
-            .stat-box {
-                margin: 0;
-                padding: 5px 10px;
-                min-width: 70px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .stat-value { font-size: 18px; }
-
-            #start-btn {
-                width: auto;
-                margin: 0;
-                padding: 8px 15px;
-                font-size: 14px;
-            }
-
-            /* 2. 게임 화면 (최대 크기 확대) */
-            #game-wrapper {
-                width: auto;
-                height: 60vh; /* 화면 높이의 60% 사용 */
-                aspect-ratio: 240/400; /* 테트리스 비율 유지 (중요!) */
-                padding: 0;
-                border: 2px solid #00ff00;
-                margin: 0 auto;
-                max-width: 95vw; /* 화면 너비 넘어가지 않게 */
-            }
-
-            canvas {
-                width: 100%;
-                height: 100%;
-                border: none;
-            }
-
-            /* 3. 모바일 컨트롤러 */
-            #mobile-controls {
-                display: flex;
-                width: 95%;
-                max-width: 450px;
-                margin-top: 15px;
-                padding: 0 10px;
-                box-sizing: border-box;
-                justify-content: space-between; /* 양쪽 끝으로 배치 */
-            }
-
-            /* 버튼 스타일 개선 */
-            .d-pad-btn {
-                width: 58px; /* 버튼 크기 최적화 */
-                height: 58px;
-                font-size: 22px;
-                margin: 0 4px; /* 버튼 사이 간격 줄임 */
-            }
-            
-            .control-group {
-                gap: 2px; /* 그룹 내 버튼 간격 미세 조정 */
-            }
-        }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <div id="game-wrapper">
-            <canvas id="tetris" width="240" height="400"></canvas>
-            
-            <div id="game-over">
-                <h2>GAME OVER</h2>
-                <div class="result-box">
-                    <p>FINAL SCORE<br><span id="final-score">0</span></p>
-                    <p>TOTAL LINES<br><span id="final-lines">0</span></p>
-                </div>
-                <button onclick="resetGame()">TRY AGAIN</button>
-            </div>
+    <!-- 1. 상단 점수판 -->
+    <div id="header-panel">
+        <div class="stat-box">
+            <div class="stat-label">SCORE</div>
+            <div class="stat-value" id="score">0</div>
         </div>
-
-        <div id="ui-panel">
-            <div>
-                <h1>Y2K<br>TETRIS</h1>
-                <div class="stat-box">
-                    <div class="stat-label">SCORE</div>
-                    <div class="stat-value" id="score">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">LINES</div>
-                    <div class="stat-value" id="lines">0</div>
-                </div>
-            </div>
-
-            <div>
-                <button id="start-btn" onclick="startGame()">Start</button>
-                <div id="controls-info">
-                    <br>
-                    [PC Controls]<br>
-                    ← → : Move<br>
-                    ↑ : Rotate<br>
-                    ↓ : Drop
-                </div>
-            </div>
+        <div class="stat-box">
+            <div class="stat-label">Y2K TETRIS</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">LINES</div>
+            <div class="stat-value" id="lines">0</div>
         </div>
     </div>
 
-    <!-- 모바일 컨트롤러 -->
-    <div id="mobile-controls">
-        <div class="control-group">
-            <div class="d-pad-btn" id="btn-left">←</div>
-            <div class="d-pad-btn" id="btn-down">↓</div>
-            <div class="d-pad-btn" id="btn-right">→</div>
+    <!-- 2. 게임 화면 -->
+    <div id="game-wrapper">
+        <canvas id="tetris" width="200" height="400"></canvas>
+        
+        <div id="game-over">
+            <h2>GAME OVER</h2>
+            <div class="result-info">
+                SCORE <span id="final-score">0</span>
+            </div>
+            <button class="retry-btn" onclick="resetGame()">AGAIN</button>
         </div>
-        <div class="control-group">
-            <div class="d-pad-btn rotate-btn" id="btn-rotate">↻</div>
+    </div>
+
+    <!-- 3. 시작 버튼 -->
+    <div id="mid-panel">
+        <button id="start-btn" onclick="startGame()">GAME START</button>
+    </div>
+
+    <!-- 4. 하단 조작 버튼 -->
+    <div id="controls-container">
+        <!-- 십자키 (좌측) -->
+        <div class="d-pad">
+            <div class="ctrl-btn btn-up" id="btn-up">↑</div>
+            <div class="ctrl-btn btn-left" id="btn-left">←</div>
+            <div class="ctrl-btn btn-right" id="btn-right">→</div>
+            <div class="ctrl-btn btn-down" id="btn-down">↓</div>
+        </div>
+
+        <!-- 회전 버튼 (우측) -->
+        <div class="rotate-wrapper">
+            <button class="ctrl-btn btn-rotate" id="btn-rotate">↻</button>
         </div>
     </div>
 
@@ -365,9 +311,7 @@
         const linesElement = document.getElementById("lines");
         const gameOverDiv = document.getElementById("game-over");
         const startBtn = document.getElementById("start-btn");
-        
         const finalScoreElement = document.getElementById("final-score");
-        const finalLinesElement = document.getElementById("final-lines");
 
         const ROW = 20;
         const COL = 10;
@@ -384,7 +328,7 @@
             [J, "blue"]
         ];
 
-        // Tetromino shapes (I, J, L, O, S, T, Z)
+        // Tetromino shapes
         const I_tetromino = [
             [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
             [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
@@ -462,7 +406,6 @@
                 ctx.strokeStyle = "rgba(0,0,0,0.3)";
                 ctx.lineWidth = 2;
                 ctx.strokeRect(x * SQ, y * SQ, SQ, SQ);
-                
                 ctx.fillStyle = "rgba(255,255,255,0.3)";
                 ctx.fillRect(x * SQ + 2, y * SQ + 2, 4, 4);
             } else {
@@ -558,8 +501,8 @@
                         if (this.y + r < 0) {
                             gameOver = true;
                             finalScoreElement.innerText = score;
-                            finalLinesElement.innerText = lines;
                             gameOverDiv.style.display = "flex";
+                            startBtn.innerText = "GAME START";
                             isPlaying = false;
                             return;
                         }
@@ -634,28 +577,24 @@
         }
 
         // --- Controls Logic ---
-
         function controlLeft() {
             if (isPlaying && !gameOver) {
                 p.moveLeft();
                 dropStart = Date.now();
             }
         }
-
         function controlRight() {
             if (isPlaying && !gameOver) {
                 p.moveRight();
                 dropStart = Date.now();
             }
         }
-
         function controlRotate() {
             if (isPlaying && !gameOver) {
                 p.rotate();
                 dropStart = Date.now();
             }
         }
-
         function controlDown() {
             if (isPlaying && !gameOver) {
                 p.moveDown();
@@ -666,22 +605,29 @@
         document.addEventListener("keydown", (event) => {
             if (!isPlaying || gameOver) return;
             if (event.keyCode === 37) controlLeft();
-            else if (event.keyCode === 38) controlRotate();
+            else if (event.keyCode === 38) controlRotate(); // Up key -> Rotate
             else if (event.keyCode === 39) controlRight();
             else if (event.keyCode === 40) controlDown();
         });
 
-        // Touch Event Listeners (Mobile)
-        // preventDefault helps prevent scrolling or double-tap zoom while playing
+        // Touch Event Listeners
         function addTouchListener(id, action) {
             const el = document.getElementById(id);
             if(el) {
+                // 터치 시 동작
                 el.addEventListener('touchstart', (e) => {
                     e.preventDefault(); 
                     action();
+                    el.style.backgroundColor = "#004400"; // 터치 피드백
                 }, {passive: false});
-                
-                // Mouse event for testing on desktop browser resizing
+
+                // 터치 끝날 때 피드백 해제
+                el.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    el.style.backgroundColor = id === 'btn-rotate' ? "#220022" : "#111"; 
+                });
+
+                // 마우스 클릭 (테스트용)
                 el.addEventListener('mousedown', (e) => {
                     e.preventDefault();
                     action();
@@ -691,11 +637,11 @@
 
         addTouchListener('btn-left', controlLeft);
         addTouchListener('btn-right', controlRight);
+        addTouchListener('btn-up', controlRotate); // Up arrow also rotates
         addTouchListener('btn-rotate', controlRotate);
         addTouchListener('btn-down', controlDown);
 
         // --- Game Flow ---
-
         function startGame() {
             if (isPlaying && !gameOver) return;
             resetGame();
@@ -710,7 +656,7 @@
             linesElement.innerText = lines;
             gameOver = false;
             gameOverDiv.style.display = "none";
-            startBtn.innerText = "Running...";
+            startBtn.innerText = "RUNNING...";
             
             if (requestAnimationId) cancelAnimationFrame(requestAnimationId);
             

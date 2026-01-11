@@ -37,7 +37,7 @@
             background-size: 20px 20px;
         }
 
-        /* 메인 컨테이너: 모든 요소를 감쌈 */
+        /* 메인 컨테이너 */
         #main-container {
             display: flex;
             align-items: center;
@@ -50,20 +50,19 @@
 
         /* --- 공통 컴포넌트 스타일 --- */
         
-        /* 1. 게임 래퍼 (캔버스 + 오버레이) */
+        /* 1. 게임 래퍼 */
         #game-wrapper {
             position: relative;
             border: 4px solid var(--primary-color);
             background-color: var(--panel-bg);
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-            /* 기본적으로 가변 크기 */
+            image-rendering: pixelated;
         }
 
         canvas {
             display: block;
             width: 100%;
             height: 100%;
-            image-rendering: pixelated;
         }
 
         #game-over {
@@ -94,7 +93,7 @@
         button:active { border-style: inset; background: #002200; }
         .retry-btn { padding: 8px 20px; font-size: 1rem; }
 
-        /* 2. 정보 패널 (점수판) */
+        /* 2. 정보 패널 */
         #info-panel {
             display: flex;
             background: #001100;
@@ -113,11 +112,12 @@
             font-size: 1.2rem;
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
             width: 100%;
+            text-align: center;
         }
 
         /* 4. 컨트롤러 (터치) */
         #touch-controls {
-            display: flex; /* 기본 flex, 미디어쿼리에서 제어 */
+            display: flex; 
             justify-content: space-between;
             align-items: center;
             width: 100%;
@@ -167,37 +167,78 @@
         /* [모바일 모드] 화면 너비 768px 이하 */
         @media (max-width: 768px) {
             #main-container {
-                flex-direction: column;
-                justify-content: center;
+                display: grid;
+                /* 왼쪽: 게임(자동), 오른쪽: 정보창(100px 고정) */
+                grid-template-columns: auto 100px;
+                /* 위: 메인영역(꽉채움), 아래: 컨트롤러(자동) */
+                grid-template-rows: 1fr auto;
+                grid-template-areas:
+                    "game info"
+                    "controls controls";
                 gap: 15px;
+                padding: 10px;
+                align-items: center;
+                justify-content: center;
             }
 
-            /* 모바일 레이아웃 순서 및 크기 */
-            #info-panel {
-                order: 1;
-                width: 65vw; /* 게임화면 너비와 비슷하게 */
-                justify-content: space-around;
-            }
-
+            /* 1. 게임 화면 (왼쪽 배치, 크기 확대) */
             #game-wrapper {
-                order: 2;
-                height: 50vh; /* 화면 높이의 50% */
-                aspect-ratio: 1/2; /* 10x20 비율 유지 */
+                grid-area: game;
+                height: 100%;
+                max-height: 65vh; /* 화면 높이의 65%까지 확대 */
+                aspect-ratio: 1/2; /* 비율 유지 */
+                justify-self: end; /* 우측 정렬하여 정보창과 붙임 */
+                margin: 0;
             }
 
+            /* 2. 정보창 & 시작버튼 (오른쪽 배치) */
+            .left-column {
+                grid-area: info;
+                width: 100%;
+                height: 100%;
+                max-height: 65vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center; /* 수직 중앙 정렬 */
+                gap: 10px;
+            }
+
+            #info-panel {
+                width: 100%;
+                flex-direction: column;
+                padding: 5px;
+            }
+            
             #start-btn-wrapper {
-                order: 3;
-                width: 65vw;
+                width: 100%;
             }
 
+            #start-btn {
+                font-size: 1rem;
+                padding: 15px 5px; /* 터치 영역 확보 */
+                line-height: 1.2;
+                white-space: normal; /* 텍스트 줄바꿈 허용 */
+            }
+
+            /* 3. 컨트롤러 (하단, 주소창 회피) */
             #touch-controls {
-                order: 4;
-                margin-top: 10px;
-                max-width: 400px;
+                grid-area: controls;
+                width: 100%;
+                max-width: 450px;
+                justify-self: center;
+                /* 하단 여백 추가하여 버튼 위로 올림 */
+                margin-bottom: 5vh; 
+                padding: 0;
             }
+            
+            /* 버튼 크기 최적화 */
+            .d-pad { gap: 8px; width: 140px; height: 140px; }
+            .ctrl-btn { font-size: 1.5rem; }
+            .btn-rotate { width: 90px; height: 90px; font-size: 2rem; }
 
-            /* 모바일에서 PC 가이드 숨김 */
+            /* PC 요소 숨김 */
             #pc-guide { display: none; }
+            .right-column { display: none; }
         }
 
         /* [PC 모드] 화면 너비 769px 이상 */
@@ -235,6 +276,7 @@
             /* 우측 패널 (PC 가이드) */
             .right-column {
                 width: 200px;
+                display: block;
             }
 
             #pc-guide {
@@ -254,7 +296,7 @@
 
     <div id="main-container">
         
-        <!-- 좌측 컬럼 (PC용 래퍼, 모바일에서는 flex order로 재배치됨) -->
+        <!-- 좌측 컬럼 (PC: 좌측, Mobile: 우측 상단 그리드) -->
         <div class="left-column">
             <!-- 점수판 -->
             <div id="info-panel">
@@ -270,11 +312,11 @@
 
             <!-- 시작 버튼 -->
             <div id="start-btn-wrapper">
-                <button id="start-btn" onclick="startGame()">GAME START</button>
+                <button id="start-btn" onclick="startGame()">GAME<br>START</button>
             </div>
         </div>
 
-        <!-- 중앙 게임 화면 -->
+        <!-- 중앙 게임 화면 (PC: 중앙, Mobile: 좌측 상단 그리드) -->
         <div id="game-wrapper">
             <canvas id="tetris" width="200" height="400"></canvas>
             <div id="game-over">
@@ -284,9 +326,8 @@
             </div>
         </div>
 
-        <!-- 우측 컬럼 (PC용 래퍼) -->
+        <!-- 우측 컬럼 (PC 전용 가이드) -->
         <div class="right-column">
-            <!-- PC 키보드 가이드 -->
             <div id="pc-guide">
                 <h3>CONTROLS</h3>
                 <div class="key-row"><span>Move Left</span> <span>←</span></div>
@@ -296,7 +337,7 @@
             </div>
         </div>
 
-        <!-- 모바일 터치 컨트롤러 (PC에서는 숨김) -->
+        <!-- 모바일 터치 컨트롤러 (PC 숨김, Mobile: 하단 그리드) -->
         <div id="touch-controls">
             <div class="d-pad">
                 <div class="ctrl-btn btn-up" id="btn-up">↑</div>
@@ -509,7 +550,7 @@
                             gameOver = true;
                             finalScoreElement.innerText = score;
                             gameOverDiv.style.display = "flex";
-                            startBtn.innerText = "GAME START";
+                            startBtn.innerHTML = "GAME<br>START";
                             isPlaying = false;
                             return;
                         }
@@ -660,7 +701,7 @@
             linesElement.innerText = lines;
             gameOver = false;
             gameOverDiv.style.display = "none";
-            startBtn.innerText = "RUNNING...";
+            startBtn.innerHTML = "GAME<br>START";
             
             if (requestAnimationId) cancelAnimationFrame(requestAnimationId);
             

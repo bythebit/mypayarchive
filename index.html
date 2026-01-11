@@ -44,9 +44,10 @@
             height: 100%;
             max-width: 1200px;
             position: relative;
+            /* 레이아웃은 미디어 쿼리에서 정의 */
         }
 
-        /* --- 타이틀 스타일 --- */
+        /* --- 타이틀 스타일 (공통) --- */
         h1 {
             margin: 0;
             color: var(--primary-color);
@@ -58,7 +59,7 @@
 
         /* --- 공통 컴포넌트 스타일 --- */
         
-        /* 1. 게임 래퍼 */
+        /* 1. 게임 래퍼 (테트리스 화면) */
         #game-wrapper {
             position: relative;
             border: 4px solid var(--primary-color);
@@ -123,14 +124,14 @@
         button:active { border-style: inset; background: #002200; }
         .retry-btn { padding: 10px 25px; font-size: 1.1rem; width: 100%; }
 
-        /* 2. 사이드 패널 */
+        /* 2. 사이드 패널 (우측 정보창들) */
         .side-panel {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        /* 정보 박스 */
+        /* 정보 박스 공통 */
         .info-box {
             background: #001100;
             border: 2px solid var(--primary-color);
@@ -149,36 +150,55 @@
             border: 1px dashed #333;
         }
 
-        /* 3. 버튼들 */
-        #start-btn-wrapper { width: 100%; }
-        #start-btn {
-            padding: 15px 5px; font-size: 1.1rem;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); width: 100%;
-            text-align: center; line-height: 1.2;
+        /* 3. 시작 및 사운드 버튼 */
+        #start-btn-wrapper {
+            width: 100%;
         }
+
+        #start-btn {
+            padding: 15px 5px;
+            font-size: 1.1rem;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            width: 100%;
+            text-align: center;
+            line-height: 1.2;
+        }
+
         #sound-btn {
-            padding: 12px 5px; font-size: 0.9rem; width: 100%;
-            text-align: center; background: #001100;
+            padding: 12px 5px;
+            font-size: 0.9rem;
+            width: 100%;
+            text-align: center;
+            background: #001100;
             border: 2px solid var(--primary-color);
-            font-weight: bold; color: var(--primary-color);
+            font-weight: bold;
+            color: var(--primary-color);
             box-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
         }
-        #sound-btn:active { background-color: #002200; box-shadow: inset 0 0 5px var(--primary-color); }
+        
+        #sound-btn:active {
+            background-color: #002200;
+            box-shadow: inset 0 0 5px var(--primary-color);
+        }
 
         /* 4. PC용 가이드 */
         #pc-guide {
-            border: 2px solid #555; padding: 15px; color: #aaa;
-            font-size: 0.8rem; line-height: 1.6; background: #050505;
+            border: 2px solid #555;
+            padding: 15px;
+            color: #aaa;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            background: #050505;
         }
         #pc-guide h3 { margin: 0 0 10px 0; color: var(--primary-color); text-align: center; }
         .key-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #333; padding: 2px 0;}
 
-        /* 5. 모바일 컨트롤러 버튼 스타일 */
+        /* 5. 모바일 컨트롤러 스타일 */
         .d-pad {
             display: flex;
+            /* space-between으로 양 끝과 중앙에 배치 */
             justify-content: space-between; 
             align-items: center;
-            width: 100%;
         }
         
         .ctrl-btn {
@@ -190,7 +210,6 @@
         
         .rotate-wrapper { 
             display: flex; justify-content: center; align-items: center; 
-            width: 100%;
         }
         .btn-rotate {
             border-radius: 50%;
@@ -205,7 +224,9 @@
 
         /* [모바일 모드] 768px 이하 */
         @media (max-width: 768px) {
+            /* PC 타이틀 숨김 */
             #pc-title { display: none; }
+            /* 모바일 타이틀 보임 (상단 배치) */
             #mobile-title { 
                 display: block; 
                 grid-area: title;
@@ -216,13 +237,14 @@
 
             #main-container {
                 display: grid;
-                /* 좌측: 유동(게임+화살표), 우측: 110px 고정(사이드+회전) */
+                /* 좌측(게임): 유동적(1fr), 우측(패널): 110px 고정 */
                 grid-template-columns: 1fr 110px;
-                /* 상단: 타이틀, 하단: 메인 콘텐츠 */
-                grid-template-rows: auto 1fr;
+                /* 상단(타이틀): 자동, 중단(게임/사이드): 유동, 하단(컨트롤): 자동 */
+                grid-template-rows: auto 1fr auto;
                 grid-template-areas:
                     "title title"
-                    "main side";
+                    "game side"
+                    "arrows rotate"; /* 화살표와 회전 버튼 분리 배치 */
                 gap: 10px;
                 padding: 10px;
                 align-items: start;
@@ -230,58 +252,66 @@
                 height: 100%;
             }
 
-            /* 좌측 컬럼 그룹 (게임창 + 화살표) */
-            #left-column {
-                grid-area: main;
-                display: flex;
-                flex-direction: column;
-                /* [수정] min-content 대신 게임창 높이(75vh)에 비례한 너비(37.5vh)를 고정 */
-                width: 37.5vh; 
-                max-width: 100%; /* 부모보다 커지지 않게 제한 */
-                justify-self: end;
-            }
-
             #game-wrapper {
-                width: 100%;
-                aspect-ratio: 1/2; /* 가로세로 1:2 유지 */
-                /* 높이는 aspect-ratio에 의해 자동 결정 */
+                grid-area: game;
+                height: 100%;
+                /* 게임창 크기 75vh */
+                max-height: 75vh; 
+                aspect-ratio: 1/2; 
+                justify-self: end; 
+                align-self: end; /* 아래쪽 정렬 (컨트롤러와 가깝게) */
             }
 
-            /* 화살표 컨트롤러 (게임창 바로 아래, 너비 동일) */
-            #mobile-arrows {
-                width: 100%;
-                margin-top: 10px;
-                flex-shrink: 0;
-            }
-
-            /* 우측 사이드바 (정보창 + 회전 버튼) */
             .side-panel {
                 grid-area: side;
                 height: 100%;
-                /* 게임창의 최대 높이와 동일하게 맞춤 */
                 max-height: 75vh; 
-                justify-content: space-between; 
-                /* 사이드바도 상단 높이 시작점 맞춤 */
+                justify-content: flex-start; /* 상단 정렬 */
+                gap: 8px;
+                align-self: start; /* 게임창 상단과 일치 */
                 margin-top: 0;
             }
-
-            .side-top-group {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
+            
+            /* 게임창이 상단이 아닌 사이드바와 상단 라인을 맞추도록 조정 */
+            #game-wrapper {
+                align-self: start;
             }
 
-            #mobile-rotate {
-                margin-bottom: 0;
-                height: 65px; 
+            /* --- 컨트롤러 배치 수정 --- */
+            
+            /* 화살표 박스 (게임창 아래) */
+            #mobile-arrows {
+                grid-area: arrows;
                 display: flex;
-                align-items: center;
-                justify-content: center;
+                width: 100%;
+                /* 게임창 너비와 정확히 일치 (75vh * 0.5 = 37.5vh) */
+                max-width: 37.5vh; 
+                justify-self: end; /* 게임창과 우측 라인 맞춤 */
+                margin-top: 10px; 
+                margin-bottom: 2vh; 
+            }
+
+            /* 회전 버튼 (사이드바 아래) */
+            #mobile-rotate {
+                grid-area: rotate;
+                display: flex;
+                justify-self: center; /* 110px 공간 내 중앙 정렬 */
+                align-self: center; /* 화살표와 수직 중앙 정렬 */
+                margin-top: 10px;
+                margin-bottom: 2vh;
             }
             
-            /* 모바일 버튼 크기 */
-            .ctrl-btn { width: 65px; height: 65px; font-size: 2rem; }
-            .btn-rotate { width: 70px; height: 70px; font-size: 2.2rem; }
+            /* 모바일 버튼 크기 조정 */
+            .ctrl-btn {
+                width: 65px; 
+                height: 65px;
+                font-size: 2rem;
+            }
+            .btn-rotate {
+                width: 70px;
+                height: 70px;
+                font-size: 2.2rem;
+            }
 
             #pc-guide-wrapper { display: none; }
             
@@ -293,7 +323,9 @@
 
         /* [PC 모드] 769px 이상 */
         @media (min-width: 769px) {
+            /* PC 타이틀 보임 */
             #pc-title { display: block; font-size: 3rem; margin-bottom: 40px; }
+            /* 모바일 요소 숨김 */
             #mobile-title { display: none; }
             #mobile-arrows { display: none; }
             #mobile-rotate { display: none; }
@@ -307,10 +339,6 @@
                 gap: 40px; 
             }
             
-            #left-column {
-                display: contents; /* PC에선 래퍼 무시 */
-            }
-
             #game-wrapper {
                 height: 70vh;
                 max-height: 700px;
@@ -324,12 +352,6 @@
                 justify-content: flex-start;
                 gap: 20px;
             }
-            
-            .side-top-group {
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
 
             #pc-guide-wrapper { display: block; }
         }
@@ -339,70 +361,67 @@
 </head>
 <body>
 
+    <!-- 1. PC 전용 타이틀 -->
     <h1 id="pc-title">Y2K Retro Tetris</h1>
 
     <div id="main-container">
         
+        <!-- 2. 모바일 전용 타이틀 -->
         <h1 id="mobile-title">Y2K Retro Tetris</h1>
 
-        <!-- 좌측 그룹 (모바일: 게임창 + 화살표) -->
-        <div id="left-column">
-            <div id="game-wrapper">
-                <canvas id="tetris" width="200" height="400"></canvas>
-                <div id="game-over">
-                    <div class="popup-box">
-                        <h2>GAME OVER</h2>
-                        <div class="result-info">
-                            <div class="result-item">SCORE <span id="final-score">0</span></div>
-                            <div class="result-item">LINES <span id="final-lines">0</span></div>
-                        </div>
-                        <button class="retry-btn" onclick="resetGame()">RETRY</button>
+        <!-- 게임 화면 -->
+        <div id="game-wrapper">
+            <canvas id="tetris" width="200" height="400"></canvas>
+            <div id="game-over">
+                <div class="popup-box">
+                    <h2>GAME OVER</h2>
+                    <div class="result-info">
+                        <div class="result-item">SCORE <span id="final-score">0</span></div>
+                        <div class="result-item">LINES <span id="final-lines">0</span></div>
                     </div>
+                    <button class="retry-btn" onclick="resetGame()">RETRY</button>
                 </div>
-            </div>
-
-            <!-- 화살표 컨트롤 (모바일 전용) -->
-            <div id="mobile-arrows" class="d-pad">
-                <div class="ctrl-btn" id="btn-left">←</div>
-                <div class="ctrl-btn" id="btn-down">↓</div>
-                <div class="ctrl-btn" id="btn-right">→</div>
             </div>
         </div>
 
-        <!-- 우측 사이드 패널 -->
+        <!-- 사이드 패널 -->
         <div class="side-panel">
-            
-            <!-- 상단 정보 그룹 -->
-            <div class="side-top-group">
-                <div id="start-btn-wrapper">
-                    <button id="start-btn" onclick="startGame()">GAME<br>START</button>
-                </div>
-                <button id="sound-btn" onclick="toggleSound()">SOUND: ON</button>
-                <div id="score-panel" class="info-box">
-                    <div class="info-label">SCORE</div>
-                    <div class="info-value" id="score">0</div>
-                    <div style="margin-top: 10px;" class="info-label">LINES</div>
-                    <div class="info-value" id="lines">0</div>
-                </div>
-                <div id="next-piece-panel" class="info-box">
-                    <div class="info-label">NEXT</div>
-                    <canvas id="next-canvas" width="80" height="80"></canvas>
-                </div>
-                <!-- PC 가이드 -->
-                <div id="pc-guide-wrapper">
-                    <div id="pc-guide">
-                        <h3>CONTROLS</h3>
-                        <div class="key-row"><span>Move</span> <span>← →</span></div>
-                        <div class="key-row"><span>Rotate</span> <span>↑</span></div>
-                        <div class="key-row"><span>Drop</span> <span>↓</span></div>
-                    </div>
+            <div id="start-btn-wrapper">
+                <button id="start-btn" onclick="startGame()">GAME<br>START</button>
+            </div>
+            <button id="sound-btn" onclick="toggleSound()">SOUND: ON</button>
+            <div id="score-panel" class="info-box">
+                <div class="info-label">SCORE</div>
+                <div class="info-value" id="score">0</div>
+                <div style="margin-top: 10px;" class="info-label">LINES</div>
+                <div class="info-value" id="lines">0</div>
+            </div>
+            <div id="next-piece-panel" class="info-box">
+                <div class="info-label">NEXT</div>
+                <canvas id="next-canvas" width="80" height="80"></canvas>
+            </div>
+            <div id="pc-guide-wrapper">
+                <div id="pc-guide">
+                    <h3>CONTROLS</h3>
+                    <div class="key-row"><span>Move</span> <span>← →</span></div>
+                    <div class="key-row"><span>Rotate</span> <span>↑</span></div>
+                    <div class="key-row"><span>Drop</span> <span>↓</span></div>
                 </div>
             </div>
+        </div>
 
-            <!-- 회전 버튼 (모바일 전용, 하단 배치) -->
-            <div id="mobile-rotate" class="rotate-wrapper">
-                <button class="ctrl-btn btn-rotate" id="btn-rotate">↻</button>
-            </div>
+        <!-- 모바일 터치 컨트롤러 (분리됨) -->
+        
+        <!-- 화살표 (게임창 하단) -->
+        <div id="mobile-arrows" class="d-pad">
+            <div class="ctrl-btn" id="btn-left">←</div>
+            <div class="ctrl-btn" id="btn-down">↓</div>
+            <div class="ctrl-btn" id="btn-right">→</div>
+        </div>
+
+        <!-- 회전 버튼 (사이드바 하단) -->
+        <div id="mobile-rotate" class="rotate-wrapper">
+            <button class="ctrl-btn btn-rotate" id="btn-rotate">↻</button>
         </div>
 
     </div>

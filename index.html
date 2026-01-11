@@ -44,6 +44,7 @@
             height: 100%;
             max-width: 1200px;
             position: relative;
+            /* 레이아웃은 미디어 쿼리에서 정의 */
         }
 
         /* --- 타이틀 스타일 (공통) --- */
@@ -198,7 +199,6 @@
             /* space-between으로 양 끝과 중앙에 배치 */
             justify-content: space-between; 
             align-items: center;
-            width: 100%;
         }
         
         .ctrl-btn {
@@ -244,11 +244,10 @@
                 grid-template-areas:
                     "title title"
                     "game side"
-                    "controls controls"; /* 컨트롤러 영역 통합 */
+                    "arrows rotate"; /* 화살표와 회전 버튼 분리 배치 */
                 gap: 10px;
                 padding: 10px;
-                /* 핵심: start로 설정하여 요소들이 위쪽 라인에 맞춰짐 */
-                align-items: start; 
+                align-items: start;
                 justify-content: center;
                 height: 100%;
             }
@@ -256,47 +255,63 @@
             #game-wrapper {
                 grid-area: game;
                 height: 100%;
-                /* 게임창 크기 65vh */
-                max-height: 65vh; 
+                /* 게임창 크기 75vh */
+                max-height: 75vh; 
                 aspect-ratio: 1/2; 
                 justify-self: end; 
-                /* align-self: start는 컨테이너의 align-items: start를 상속 */
+                align-self: end; /* 아래쪽 정렬 (컨트롤러와 가깝게) */
             }
 
             .side-panel {
                 grid-area: side;
                 height: 100%;
-                max-height: 65vh;
-                justify-content: flex-start; /* 상단부터 내용 배치 */
+                max-height: 75vh; 
+                justify-content: flex-start; /* 상단 정렬 */
                 gap: 8px;
-                /* margin-top: 0으로 게임창 상단과 일치시킴 */
+                align-self: start; /* 게임창 상단과 일치 */
                 margin-top: 0;
             }
             
-            /* 모바일 컨트롤러 래퍼 */
-            #touch-controls {
-                grid-area: controls;
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                width: 100%;
-                max-width: 450px;
-                justify-self: center;
-                margin-top: 5px;
-                margin-bottom: 2vh; 
-                gap: 20px;
-            }
-            
-            /* 화살표 박스 너비 */
-            .d-pad {
-                flex: 1; /* 남은 공간 차지 */
-                max-width: 250px; /* 너무 넓어지지 않게 */
+            /* 게임창이 상단이 아닌 사이드바와 상단 라인을 맞추도록 조정 */
+            #game-wrapper {
+                align-self: start;
             }
 
+            /* --- 컨트롤러 배치 수정 --- */
+            
+            /* 화살표 박스 (게임창 아래) */
+            #mobile-arrows {
+                grid-area: arrows;
+                display: flex;
+                width: 100%;
+                /* 게임창 너비와 정확히 일치 (75vh * 0.5 = 37.5vh) */
+                max-width: 37.5vh; 
+                justify-self: end; /* 게임창과 우측 라인 맞춤 */
+                margin-top: 10px; 
+                margin-bottom: 2vh; 
+            }
+
+            /* 회전 버튼 (사이드바 아래) */
+            #mobile-rotate {
+                grid-area: rotate;
+                display: flex;
+                justify-self: center; /* 110px 공간 내 중앙 정렬 */
+                align-self: center; /* 화살표와 수직 중앙 정렬 */
+                margin-top: 10px;
+                margin-bottom: 2vh;
+            }
+            
             /* 모바일 버튼 크기 조정 */
-            .ctrl-btn { width: 60px; height: 60px; font-size: 2rem; }
-            .btn-rotate { width: 65px; height: 65px; font-size: 2.2rem; }
+            .ctrl-btn {
+                width: 65px; 
+                height: 65px;
+                font-size: 2rem;
+            }
+            .btn-rotate {
+                width: 70px;
+                height: 70px;
+                font-size: 2.2rem;
+            }
 
             #pc-guide-wrapper { display: none; }
             
@@ -308,10 +323,12 @@
 
         /* [PC 모드] 769px 이상 */
         @media (min-width: 769px) {
-            /* PC 타이틀 보임 (body 직속) */
+            /* PC 타이틀 보임 */
             #pc-title { display: block; font-size: 3rem; margin-bottom: 40px; }
-            /* 모바일 타이틀 숨김 */
+            /* 모바일 요소 숨김 */
             #mobile-title { display: none; }
+            #mobile-arrows { display: none; }
+            #mobile-rotate { display: none; }
 
             #main-container {
                 height: auto; 
@@ -336,11 +353,7 @@
                 gap: 20px;
             }
 
-            /* PC 사이드바 순서: Start > Sound > Score > Next > Controls */
             #pc-guide-wrapper { display: block; }
-            
-            /* 모바일 컨트롤 숨김 */
-            #touch-controls { display: none; }
         }
 
         @keyframes blink { 50% { opacity: 0; } }
@@ -363,8 +376,8 @@
                 <div class="popup-box">
                     <h2>GAME OVER</h2>
                     <div class="result-info">
-                        <div class="result-item">SCORE<br><span id="final-score">0</span></div>
-                        <div class="result-item" style="margin-top:10px;">LINES<br><span id="final-lines">0</span></div>
+                        <div class="result-item">SCORE <span id="final-score">0</span></div>
+                        <div class="result-item">LINES <span id="final-lines">0</span></div>
                     </div>
                     <button class="retry-btn" onclick="resetGame()">RETRY</button>
                 </div>
@@ -377,20 +390,16 @@
                 <button id="start-btn" onclick="startGame()">GAME<br>START</button>
             </div>
             <button id="sound-btn" onclick="toggleSound()">SOUND: ON</button>
-            
             <div id="score-panel" class="info-box">
                 <div class="info-label">SCORE</div>
                 <div class="info-value" id="score">0</div>
                 <div style="margin-top: 10px;" class="info-label">LINES</div>
                 <div class="info-value" id="lines">0</div>
             </div>
-
             <div id="next-piece-panel" class="info-box">
                 <div class="info-label">NEXT</div>
                 <canvas id="next-canvas" width="80" height="80"></canvas>
             </div>
-
-            <!-- PC Guide (Hidden on Mobile) -->
             <div id="pc-guide-wrapper">
                 <div id="pc-guide">
                     <h3>CONTROLS</h3>
@@ -401,18 +410,18 @@
             </div>
         </div>
 
-        <!-- 모바일 터치 컨트롤러 (하단) -->
-        <div id="touch-controls">
-            <!-- 화살표 -->
-            <div class="d-pad">
-                <div class="ctrl-btn" id="btn-left">←</div>
-                <div class="ctrl-btn" id="btn-down">↓</div>
-                <div class="ctrl-btn" id="btn-right">→</div>
-            </div>
-            <!-- 회전 버튼 -->
-            <div class="rotate-wrapper">
-                <button class="ctrl-btn btn-rotate" id="btn-rotate">↻</button>
-            </div>
+        <!-- 모바일 터치 컨트롤러 (분리됨) -->
+        
+        <!-- 화살표 (게임창 하단) -->
+        <div id="mobile-arrows" class="d-pad">
+            <div class="ctrl-btn" id="btn-left">←</div>
+            <div class="ctrl-btn" id="btn-down">↓</div>
+            <div class="ctrl-btn" id="btn-right">→</div>
+        </div>
+
+        <!-- 회전 버튼 (사이드바 하단) -->
+        <div id="mobile-rotate" class="rotate-wrapper">
+            <button class="ctrl-btn btn-rotate" id="btn-rotate">↻</button>
         </div>
 
     </div>
@@ -436,44 +445,62 @@
         const SQ = 20; 
         const VACANT = "BLACK"; 
 
-        // --- Audio ---
+        // --- BGM & SFX 설정 (Web Audio API) ---
         let audioCtx = null;
+        let bgmOscillators = [];
+        let bgmGainNode = null;
         let isBgmPlaying = false;
         let bgmInterval = null;
-        let isSoundOn = true;
+        let isSoundOn = true; // 사운드 On/Off 상태 변수
 
         function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
         }
 
+        // 사운드 토글 함수
         function toggleSound() {
             isSoundOn = !isSoundOn;
+            
+            // 버튼 UI 업데이트
             if (isSoundOn) {
                 soundBtn.innerText = "SOUND: ON";
                 soundBtn.style.color = "var(--primary-color)";
                 soundBtn.style.borderColor = "var(--primary-color)";
+                
+                // 오디오 초기화 및 게임 중이면 BGM 재생
                 initAudio();
-                if (isPlaying && !gameOver) playBGM();
+                if (isPlaying && !gameOver) {
+                    playBGM();
+                }
             } else {
                 soundBtn.innerText = "SOUND: OFF";
                 soundBtn.style.color = "#555";
                 soundBtn.style.borderColor = "#555";
+                
+                // BGM 정지
                 stopBGM();
             }
         }
 
+        // 간단한 멜로디 노트 (Korobeiniki Theme 유사 - 8비트 스타일)
+        // Note: Freq(Hz), Duration(s)
         const melody = [
-            {f: 659, d: 0.4}, {f: 494, d: 0.2}, {f: 523, d: 0.2}, {f: 587, d: 0.4},
-            {f: 523, d: 0.2}, {f: 494, d: 0.2}, {f: 440, d: 0.4}, {f: 440, d: 0.2},
-            {f: 523, d: 0.2}, {f: 659, d: 0.4}, {f: 587, d: 0.2}, {f: 523, d: 0.2},
-            {f: 494, d: 0.6}, {f: 523, d: 0.2}, {f: 587, d: 0.4}, {f: 659, d: 0.4},
-            {f: 523, d: 0.4}, {f: 440, d: 0.4}, {f: 440, d: 0.4}, {f: 0, d: 0.4},
+            {f: 659, d: 0.4}, {f: 494, d: 0.2}, {f: 523, d: 0.2}, {f: 587, d: 0.4}, // E B C D
+            {f: 523, d: 0.2}, {f: 494, d: 0.2}, {f: 440, d: 0.4}, {f: 440, d: 0.2}, // C B A A
+            {f: 523, d: 0.2}, {f: 659, d: 0.4}, {f: 587, d: 0.2}, {f: 523, d: 0.2}, // C E D C
+            {f: 494, d: 0.6}, {f: 523, d: 0.2}, {f: 587, d: 0.4}, {f: 659, d: 0.4}, // B C D E
+            {f: 523, d: 0.4}, {f: 440, d: 0.4}, {f: 440, d: 0.4}, {f: 0, d: 0.4},   // C A A Rest
         ];
+
         let noteIndex = 0;
 
         function playBGM() {
-            if (!isSoundOn) return;
+            if (!isSoundOn) return; // 사운드 Off면 재생 안함
             if (!audioCtx) initAudio();
             if (isBgmPlaying) return;
             isBgmPlaying = true;
@@ -483,25 +510,38 @@
 
         function stopBGM() {
             isBgmPlaying = false;
+            if (bgmGainNode) {
+                // 부드럽게 페이드 아웃
+                bgmGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+            }
             clearTimeout(bgmInterval);
         }
 
         function scheduleNextNote() {
-            if (!isBgmPlaying || !isSoundOn) return;
+            if (!isBgmPlaying || !isSoundOn) return; // 사운드 Off면 중단
+
             const note = melody[noteIndex];
             const now = audioCtx.currentTime;
+            
             if (note.f > 0) {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.type = 'square';
+                
+                osc.type = 'square'; // 8비트 느낌
                 osc.frequency.setValueAtTime(note.f, now);
+                
+                // 볼륨 조절 (요청에 따라 0.03 -> 0.015로 50% 축소)
                 gain.gain.setValueAtTime(0.015, now);
                 gain.gain.exponentialRampToValueAtTime(0.005, now + note.d - 0.05);
+
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
+
                 osc.start(now);
                 osc.stop(now + note.d);
             }
+
+            // 다음 노트 스케줄링
             bgmInterval = setTimeout(() => {
                 noteIndex = (noteIndex + 1) % melody.length;
                 scheduleNextNote();
@@ -509,168 +549,495 @@
         }
 
         function playSound(type) {
-            if (!isSoundOn || !audioCtx) return;
+            if (!isSoundOn) return; // 사운드 Off면 재생 안함
+            if (!audioCtx) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
+
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
+
             osc.connect(gainNode);
             gainNode.connect(audioCtx.destination);
+
             const now = audioCtx.currentTime;
 
+            // 효과음 볼륨 1.5배 증폭 적용
+            // Move/Rotate/Drop: 0.05 -> 0.075
+            // GameOver: 0.1 -> 0.15
+
             if (type === 'move') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(200, now);
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
                 gainNode.gain.setValueAtTime(0.075, now);
-                osc.start(now); osc.stop(now + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
             } else if (type === 'rotate') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(400, now);
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
                 gainNode.gain.setValueAtTime(0.075, now);
-                osc.start(now); osc.stop(now + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
             } else if (type === 'drop') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(150, now);
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, now);
                 gainNode.gain.setValueAtTime(0.075, now);
-                osc.start(now); osc.stop(now + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
             } else if (type === 'clear') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(600, now);
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.setValueAtTime(600, now + 0.1);
+                osc.frequency.setValueAtTime(800, now + 0.2);
                 gainNode.gain.setValueAtTime(0.075, now);
-                osc.start(now); osc.stop(now + 0.4);
+                gainNode.gain.linearRampToValueAtTime(0.075, now + 0.2);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
             } else if (type === 'gameover') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, now);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(10, now + 1.0);
                 gainNode.gain.setValueAtTime(0.15, now);
-                osc.start(now); osc.stop(now + 1.0);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+                osc.start(now);
+                osc.stop(now + 1.0);
             }
         }
 
-        // --- Game Logic ---
-        const PIECES = [[Z,"red"],[S,"green"],[T,"purple"],[O,"yellow"],[L,"orange"],[I,"cyan"],[J,"blue"]];
-        const I_tetromino = [[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]]];
-        const J_tetromino = [[[1,0,0],[1,1,1],[0,0,0]], [[0,1,1],[0,1,0],[0,1,0]], [[0,0,0],[1,1,1],[0,0,1]], [[0,1,0],[0,1,0],[1,1,0]]];
-        const L_tetromino = [[[0,0,1],[1,1,1],[0,0,0]], [[0,1,0],[0,1,0],[0,1,1]], [[0,0,0],[1,1,1],[1,0,0]], [[1,1,0],[0,1,0],[0,1,0]]];
-        const O_tetromino = [[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]]];
-        const S_tetromino = [[[0,1,1],[1,1,0],[0,0,0]], [[0,1,0],[0,1,1],[0,0,1]], [[0,0,0],[0,1,1],[1,1,0]], [[1,0,0],[1,1,0],[0,1,0]]];
-        const T_tetromino = [[[0,1,0],[1,1,1],[0,0,0]], [[0,1,0],[0,1,1],[0,1,0]], [[0,0,0],[1,1,1],[0,1,0]], [[0,1,0],[1,1,0],[0,1,0]]];
-        const Z_tetromino = [[[1,1,0],[0,1,1],[0,0,0]], [[0,0,1],[0,1,1],[0,1,0]], [[0,0,0],[1,1,0],[0,1,1]], [[0,1,0],[1,1,0],[1,0,0]]];
+        const PIECES = [
+            [Z, "red"],
+            [S, "green"],
+            [T, "purple"],
+            [O, "yellow"],
+            [L, "orange"],
+            [I, "cyan"],
+            [J, "blue"]
+        ];
 
-        function Z(){return Z_tetromino;} function S(){return S_tetromino;} function T(){return T_tetromino;}
-        function O(){return O_tetromino;} function L(){return L_tetromino;} function I(){return I_tetromino;} function J(){return J_tetromino;}
+        // Tetromino shapes
+        const I_tetromino = [
+            [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
+            [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
+            [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
+            [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]]
+        ];
+        const J_tetromino = [
+            [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
+            [[0, 1, 1], [0, 1, 0], [0, 1, 0]],
+            [[0, 0, 0], [1, 1, 1], [0, 0, 1]],
+            [[0, 1, 0], [0, 1, 0], [1, 1, 0]]
+        ];
+        const L_tetromino = [
+            [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
+            [[0, 1, 0], [0, 1, 0], [0, 1, 1]],
+            [[0, 0, 0], [1, 1, 1], [1, 0, 0]],
+            [[1, 1, 0], [0, 1, 0], [0, 1, 0]]
+        ];
+        const O_tetromino = [
+            [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]]
+        ];
+        const S_tetromino = [
+            [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
+            [[0, 1, 0], [0, 1, 1], [0, 0, 1]],
+            [[0, 0, 0], [0, 1, 1], [1, 1, 0]],
+            [[1, 0, 0], [1, 1, 0], [0, 1, 0]]
+        ];
+        const T_tetromino = [
+            [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
+            [[0, 1, 0], [0, 1, 1], [0, 1, 0]],
+            [[0, 0, 0], [1, 1, 1], [0, 1, 0]],
+            [[0, 1, 0], [1, 1, 0], [0, 1, 0]]
+        ];
+        const Z_tetromino = [
+            [[1, 1, 0], [0, 1, 1], [0, 0, 0]],
+            [[0, 0, 1], [0, 1, 1], [0, 1, 0]],
+            [[0, 0, 0], [1, 1, 0], [0, 1, 1]],
+            [[0, 1, 0], [1, 1, 0], [1, 0, 0]]
+        ];
 
-        let p, nextP, dropStart=Date.now(), gameOver=false, isPlaying=false, requestAnimationId=null;
+        function Z() { return Z_tetromino; }
+        function S() { return S_tetromino; }
+        function T() { return T_tetromino; }
+        function O() { return O_tetromino; }
+        function L() { return L_tetromino; }
+        function I() { return I_tetromino; }
+        function J() { return J_tetromino; }
+
+        let board = [];
+        let score = 0;
+        let lines = 0;
+        let p; // current piece
+        let nextP; // next piece
+        let dropStart = Date.now();
+        let gameOver = false;
+        let isPlaying = false;
+        let requestAnimationId = null;
 
         function initBoard() {
-            for(let r=0; r<ROW; r++){ board[r]=[]; for(let c=0; c<COL; c++) board[r][c]=VACANT; }
-        }
-        function drawSquare(x,y,color){
-            ctx.fillStyle=color; ctx.fillRect(x*SQ,y*SQ,SQ,SQ);
-            if(color!==VACANT){
-                ctx.strokeStyle="rgba(0,0,0,0.3)"; ctx.lineWidth=2; ctx.strokeRect(x*SQ,y*SQ,SQ,SQ);
-                ctx.fillStyle="rgba(255,255,255,0.3)"; ctx.fillRect(x*SQ+2,y*SQ+2,4,4);
-            } else {
-                ctx.strokeStyle="#111"; ctx.strokeRect(x*SQ,y*SQ,SQ,SQ);
+            for (let r = 0; r < ROW; r++) {
+                board[r] = [];
+                for (let c = 0; c < COL; c++) {
+                    board[r][c] = VACANT;
+                }
             }
         }
-        function drawBoard(){ for(let r=0; r<ROW; r++) for(let c=0; c<COL; c++) drawSquare(c,r,board[r][c]); }
 
-        function drawNextPiece() {
-            nextCtx.fillStyle = "#000"; nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
-            if (!nextP) return;
-            const tetromino = nextP.tetromino[0], color = nextP.color, size = 15;
-            let minX=4, maxX=0, minY=4, maxY=0, found=false;
-            for(let r=0; r<tetromino.length; r++) for(let c=0; c<tetromino.length; c++) if(tetromino[r][c]) {
-                if(c<minX)minX=c; if(c>maxX)maxX=c; if(r<minY)minY=r; if(r>maxY)maxY=r; found=true;
+        function drawSquare(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * SQ, y * SQ, SQ, SQ);
+
+            if (color !== VACANT) {
+                ctx.strokeStyle = "rgba(0,0,0,0.3)";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x * SQ, y * SQ, SQ, SQ);
+                ctx.fillStyle = "rgba(255,255,255,0.3)";
+                ctx.fillRect(x * SQ + 2, y * SQ + 2, 4, 4);
+            } else {
+                ctx.strokeStyle = "#111";
+                ctx.strokeRect(x * SQ, y * SQ, SQ, SQ);
             }
+        }
+
+        function drawBoard() {
+            for (let r = 0; r < ROW; r++) {
+                for (let c = 0; c < COL; c++) {
+                    drawSquare(c, r, board[r][c]);
+                }
+            }
+        }
+
+        // --- Next Piece Functionality (Center Alignment Fixed) ---
+        function drawNextPiece() {
+            // Clear next canvas
+            nextCtx.fillStyle = "#000";
+            nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+            
+            if (!nextP) return;
+
+            const tetromino = nextP.tetromino[0]; // 기본 회전 상태
+            const color = nextP.color;
+            const size = 15; // 미리보기 블록 크기
+            
+            // 실제 블록이 존재하는 영역 계산 (Bounding Box)
+            let minX = 4, maxX = 0, minY = 4, maxY = 0;
+            let found = false;
+            
+            for(let r=0; r<tetromino.length; r++) {
+                for(let c=0; c<tetromino.length; c++) {
+                    if(tetromino[r][c]) {
+                        if(c < minX) minX = c;
+                        if(c > maxX) maxX = c;
+                        if(r < minY) minY = r;
+                        if(r > maxY) maxY = r;
+                        found = true;
+                    }
+                }
+            }
+            
             if(!found) return;
-            const offsetX = (nextCanvas.width - (maxX-minX+1)*size)/2 - minX*size;
-            const offsetY = (nextCanvas.height - (maxY-minY+1)*size)/2 - minY*size;
-            for(let r=0; r<tetromino.length; r++) for(let c=0; c<tetromino.length; c++) if(tetromino[r][c]) {
-                nextCtx.fillStyle=color; nextCtx.fillRect(offsetX+c*size, offsetY+r*size, size, size);
-                nextCtx.strokeStyle="rgba(0,0,0,0.3)"; nextCtx.strokeRect(offsetX+c*size, offsetY+r*size, size, size);
-                nextCtx.fillStyle="rgba(255,255,255,0.3)"; nextCtx.fillRect(offsetX+c*size+2, offsetY+r*size+2, 3, 3);
+
+            const blockWidth = (maxX - minX + 1) * size;
+            const blockHeight = (maxY - minY + 1) * size;
+
+            // 캔버스 중앙에 오도록 오프셋 계산 (Bounding Box 기준)
+            const offsetX = (nextCanvas.width - blockWidth) / 2 - minX * size;
+            const offsetY = (nextCanvas.height - blockHeight) / 2 - minY * size;
+
+            for (let r = 0; r < tetromino.length; r++) {
+                for (let c = 0; c < tetromino.length; c++) {
+                    if (tetromino[r][c]) {
+                        const drawX = offsetX + c * size;
+                        const drawY = offsetY + r * size;
+                        
+                        nextCtx.fillStyle = color;
+                        nextCtx.fillRect(drawX, drawY, size, size);
+                        nextCtx.strokeStyle = "rgba(0,0,0,0.3)";
+                        nextCtx.strokeRect(drawX, drawY, size, size);
+                        nextCtx.fillStyle = "rgba(255,255,255,0.3)";
+                        nextCtx.fillRect(drawX + 2, drawY + 2, 3, 3);
+                    }
+                }
             }
         }
 
         class Piece {
-            constructor(tetromino,color){ this.tetromino=tetromino; this.color=color; this.tetrominoN=0; this.activeTetromino=this.tetromino[this.tetrominoN]; this.x=3; this.y=-2; }
-            fill(color){ for(let r=0; r<this.activeTetromino.length; r++) for(let c=0; c<this.activeTetromino.length; c++) if(this.activeTetromino[r][c]) if(this.y+r>=0) drawSquare(this.x+c,this.y+r,color); }
-            draw(){ this.fill(this.color); }
-            unDraw(){ this.fill(VACANT); }
-            moveDown(){ if(!this.collision(0,1,this.activeTetromino)){ this.unDraw(); this.y++; this.draw(); } else { this.lock(); p=nextP; p.x=3; p.y=-2; nextP=randomPiece(); drawNextPiece(); } }
-            moveRight(){ if(!this.collision(1,0,this.activeTetromino)){ this.unDraw(); this.x++; this.draw(); } }
-            moveLeft(){ if(!this.collision(-1,0,this.activeTetromino)){ this.unDraw(); this.x--; this.draw(); } }
-            rotate(){
-                let nextPattern = this.tetromino[(this.tetrominoN+1)%this.tetromino.length];
-                let kick=0; if(this.collision(0,0,nextPattern)) kick = this.x>COL/2 ? -1 : 1;
-                if(!this.collision(kick,0,nextPattern)){ this.unDraw(); this.x+=kick; this.tetrominoN=(this.tetrominoN+1)%this.tetromino.length; this.activeTetromino=this.tetromino[this.tetrominoN]; this.draw(); }
+            constructor(tetromino, color) {
+                this.tetromino = tetromino;
+                this.color = color;
+                this.tetrominoN = 0;
+                this.activeTetromino = this.tetromino[this.tetrominoN];
+                this.x = 3;
+                this.y = -2;
             }
-            lock(){
-                for(let r=0; r<this.activeTetromino.length; r++) for(let c=0; c<this.activeTetromino.length; c++) if(this.activeTetromino[r][c]) {
-                    if(this.y+r < 0){
-                        gameOver=true; stopBGM(); playSound('gameover');
-                        finalScoreElement.innerText = score; finalLinesElement.innerText = lines;
-                        gameOverDiv.style.display = "flex"; startBtn.innerHTML = "GAME<br>START";
-                        isPlaying=false; return;
-                    }
-                    board[this.y+r][this.x+c] = this.color;
-                }
-                let lineCleared=false;
-                for(let r=0; r<ROW; r++){
-                    let isRowFull=true; for(let c=0; c<COL; c++) if(board[r][c]===VACANT){ isRowFull=false; break; }
-                    if(isRowFull){
-                        lineCleared=true; score+=10; lines++;
-                        scoreElement.innerText=score; linesElement.innerText=lines;
-                        board.splice(r,1); board.unshift(new Array(COL).fill(VACANT));
+
+            fill(color) {
+                for (let r = 0; r < this.activeTetromino.length; r++) {
+                    for (let c = 0; c < this.activeTetromino.length; c++) {
+                        if (this.activeTetromino[r][c]) {
+                            if(this.y + r >= 0) {
+                                drawSquare(this.x + c, this.y + r, color);
+                            }
+                        }
                     }
                 }
-                if(lineCleared) playSound('clear'); else playSound('drop');
+            }
+
+            draw() { this.fill(this.color); }
+            unDraw() { this.fill(VACANT); }
+
+            moveDown() {
+                if (!this.collision(0, 1, this.activeTetromino)) {
+                    this.unDraw();
+                    this.y++;
+                    this.draw();
+                } else {
+                    this.lock();
+                    // Set next piece
+                    p = nextP;
+                    p.x = 3; p.y = -2; // 위치 초기화
+                    nextP = randomPiece();
+                    drawNextPiece();
+                }
+            }
+
+            moveRight() {
+                if (!this.collision(1, 0, this.activeTetromino)) {
+                    this.unDraw();
+                    this.x++;
+                    this.draw();
+                }
+            }
+
+            moveLeft() {
+                if (!this.collision(-1, 0, this.activeTetromino)) {
+                    this.unDraw();
+                    this.x--;
+                    this.draw();
+                }
+            }
+
+            rotate() {
+                let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+                let kick = 0;
+
+                if (this.collision(0, 0, nextPattern)) {
+                    if (this.x > COL / 2) { kick = -1; } 
+                    else { kick = 1; }
+                }
+
+                if (!this.collision(kick, 0, nextPattern)) {
+                    this.unDraw();
+                    this.x += kick;
+                    this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
+                    this.activeTetromino = this.tetromino[this.tetrominoN];
+                    this.draw();
+                }
+            }
+
+            lock() {
+                for (let r = 0; r < this.activeTetromino.length; r++) {
+                    for (let c = 0; c < this.activeTetromino.length; c++) {
+                        if (!this.activeTetromino[r][c]) {
+                            continue;
+                        }
+                        if (this.y + r < 0) {
+                            gameOver = true;
+                            stopBGM();
+                            playSound('gameover');
+                            finalScoreElement.innerText = score;
+                            finalLinesElement.innerText = lines; 
+                            gameOverDiv.style.display = "flex";
+                            startBtn.innerHTML = "GAME<br>START";
+                            isPlaying = false;
+                            return;
+                        }
+                        board[this.y + r][this.x + c] = this.color;
+                    }
+                }
+                let lineCleared = false;
+                for (let r = 0; r < ROW; r++) {
+                    let isRowFull = true;
+                    for (let c = 0; c < COL; c++) {
+                        if (board[r][c] === VACANT) {
+                            isRowFull = false;
+                            break;
+                        }
+                    }
+                    if (isRowFull) {
+                        lineCleared = true;
+                        document.getElementById("game-wrapper").style.borderColor = "#ff00ff";
+                        setTimeout(() => document.getElementById("game-wrapper").style.borderColor = "#00ff00", 100);
+                        score += 10;
+                        lines += 1;
+                        scoreElement.innerText = score;
+                        linesElement.innerText = lines;
+                        board.splice(r, 1);
+                        board.unshift(new Array(COL).fill(VACANT));
+                    }
+                }
+                
+                if (lineCleared) {
+                    playSound('clear');
+                } else {
+                    playSound('drop');
+                }
+
                 drawBoard();
             }
-            collision(x,y,piece){
-                for(let r=0; r<piece.length; r++) for(let c=0; c<piece.length; c++) if(piece[r][c]) {
-                    let newX=this.x+c+x, newY=this.y+r+y;
-                    if(newX<0||newX>=COL||newY>=ROW) return true;
-                    if(newY<0) continue;
-                    if(board[newY][newX]!==VACANT) return true;
+
+            collision(x, y, piece) {
+                for (let r = 0; r < piece.length; r++) {
+                    for (let c = 0; c < piece.length; c++) {
+                        if (!piece[r][c]) {
+                            continue;
+                        }
+                        let newX = this.x + c + x;
+                        let newY = this.y + r + y;
+
+                        if (newX < 0 || newX >= COL || newY >= ROW) {
+                            return true;
+                        }
+                        if (newY < 0) {
+                            continue;
+                        }
+                        if (board[newY][newX] !== VACANT) {
+                            return true;
+                        }
+                    }
                 }
                 return false;
             }
         }
 
-        function randomPiece(){ let r=Math.floor(Math.random()*PIECES.length); return new Piece(PIECES[r][0](),PIECES[r][1]); }
-        function drop(){
-            if(!isPlaying) return;
-            let now=Date.now(), delta=now-dropStart;
-            if(delta > Math.max(200, 1000-(lines*20))) { p.moveDown(); dropStart=Date.now(); }
-            if(!gameOver) requestAnimationId=requestAnimationFrame(drop);
+        function randomPiece() {
+            let r = Math.floor(Math.random() * PIECES.length);
+            return new Piece(PIECES[r][0](), PIECES[r][1]);
         }
 
-        document.addEventListener("keydown",e=>{
-            if(!isPlaying||gameOver) return;
-            if(e.keyCode===37){ p.moveLeft(); playSound('move'); }
-            else if(e.keyCode===38){ p.rotate(); playSound('rotate'); }
-            else if(e.keyCode===39){ p.moveRight(); playSound('move'); }
-            else if(e.keyCode===40){ p.moveDown(); playSound('move'); }
-        });
+        function drop() {
+            if (!isPlaying) return;
 
-        function addTouch(id, action){
-            const el=document.getElementById(id);
-            if(el){
-                el.addEventListener('touchstart',e=>{ e.preventDefault(); action(); el.style.backgroundColor="#004400"; }, {passive:false});
-                el.addEventListener('touchend',e=>{ e.preventDefault(); el.style.backgroundColor=id==='btn-rotate'?"#220022":"#111"; });
+            let now = Date.now();
+            let delta = now - dropStart;
+            let speed = Math.max(200, 1000 - (lines * 20)); 
+
+            if (delta > speed) {
+                p.moveDown();
+                dropStart = Date.now();
+            }
+            if (!gameOver) {
+                requestAnimationId = requestAnimationFrame(drop);
             }
         }
-        addTouch('btn-left', ()=>{ if(isPlaying&&!gameOver){ p.moveLeft(); playSound('move'); } });
-        addTouch('btn-right', ()=>{ if(isPlaying&&!gameOver){ p.moveRight(); playSound('move'); } });
-        addTouch('btn-rotate', ()=>{ if(isPlaying&&!gameOver){ p.rotate(); playSound('rotate'); } });
-        addTouch('btn-down', ()=>{ if(isPlaying&&!gameOver){ p.moveDown(); playSound('move'); } });
 
-        function startGame(){ initAudio(); if(isPlaying&&!gameOver)return; resetGame(); }
-        function resetGame(){
-            initBoard(); drawBoard(); score=0; lines=0;
-            scoreElement.innerText=0; linesElement.innerText=0;
-            gameOver=false; gameOverDiv.style.display="none"; startBtn.innerHTML="RUNNING...";
-            if(requestAnimationId) cancelAnimationFrame(requestAnimationId);
-            p=randomPiece(); nextP=randomPiece(); drawNextPiece();
-            isPlaying=true; playBGM(); dropStart=Date.now(); drop();
+        // --- Controls Logic ---
+        function controlLeft() {
+            if (isPlaying && !gameOver) {
+                p.moveLeft();
+                dropStart = Date.now();
+                playSound('move');
+            }
         }
-        initBoard(); drawBoard();
+        function controlRight() {
+            if (isPlaying && !gameOver) {
+                p.moveRight();
+                dropStart = Date.now();
+                playSound('move');
+            }
+        }
+        function controlRotate() {
+            if (isPlaying && !gameOver) {
+                p.rotate();
+                dropStart = Date.now();
+                playSound('rotate');
+            }
+        }
+        function controlDown() {
+            if (isPlaying && !gameOver) {
+                p.moveDown();
+                playSound('move'); 
+            }
+        }
+
+        // Keyboard Event Listeners
+        document.addEventListener("keydown", (event) => {
+            if (!isPlaying || gameOver) return;
+            if (event.keyCode === 37) controlLeft();
+            else if (event.keyCode === 38) controlRotate(); 
+            else if (event.keyCode === 39) controlRight();
+            else if (event.keyCode === 40) controlDown();
+        });
+
+        // Touch Event Listeners
+        function addTouchListener(id, action) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('touchstart', (e) => {
+                    e.preventDefault(); 
+                    action();
+                    el.style.backgroundColor = "#004400"; 
+                }, {passive: false});
+
+                el.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    el.style.backgroundColor = id === 'btn-rotate' ? "#220022" : "#111"; 
+                });
+
+                el.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    action();
+                });
+            }
+        }
+
+        addTouchListener('btn-left', controlLeft);
+        addTouchListener('btn-right', controlRight);
+        // btn-up 리스너 삭제 (존재하지 않는 ID)
+        addTouchListener('btn-rotate', controlRotate);
+        addTouchListener('btn-down', controlDown);
+
+        // --- Game Flow ---
+        function startGame() {
+            initAudio(); // 오디오 컨텍스트 초기화/재개
+            if (isPlaying && !gameOver) return;
+            resetGame();
+        }
+
+        function resetGame() {
+            initBoard();
+            drawBoard();
+            score = 0;
+            lines = 0;
+            scoreElement.innerText = score;
+            linesElement.innerText = lines;
+            gameOver = false;
+            gameOverDiv.style.display = "none";
+            startBtn.innerHTML = "RUNNING...";
+            
+            if (requestAnimationId) cancelAnimationFrame(requestAnimationId);
+            
+            // Set pieces
+            p = randomPiece();
+            nextP = randomPiece();
+            drawNextPiece();
+            
+            isPlaying = true;
+            playBGM();
+            dropStart = Date.now();
+            drop();
+        }
+
+        initBoard();
+        drawBoard();
+
     </script>
 </body>
 </html>

@@ -48,6 +48,15 @@
             position: relative;
         }
 
+        /* --- 타이틀 스타일 (기본) --- */
+        #game-title {
+            margin: 0;
+            color: var(--primary-color);
+            text-shadow: 2px 2px var(--highlight);
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
         /* --- 공통 컴포넌트 스타일 --- */
         
         /* 1. 게임 래퍼 */
@@ -65,24 +74,60 @@
             height: 100%;
         }
 
+        /* 게임 오버 팝업 컨테이너 (배경) */
         #game-over {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(2px);
             display: none;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 10;
         }
+
+        /* 팝업 박스 스타일 */
+        .popup-box {
+            background-color: #000;
+            border: 4px double var(--primary-color);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px var(--primary-color), inset 0 0 10px rgba(0, 255, 0, 0.2);
+            min-width: 180px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         #game-over h2 {
             font-size: 2rem; color: #ff0000;
             text-shadow: 0 0 10px #ff0000;
-            margin-bottom: 1rem;
+            margin: 0 0 1.5rem 0;
             animation: blink 1s infinite;
         }
-        .result-info { color: #fff; margin-bottom: 1rem; text-align: center; }
-        .result-info span { color: var(--highlight); font-weight: bold; font-size: 1.5rem; display: block; margin-top: 5px;}
+
+        .result-info { 
+            margin-bottom: 1.5rem; 
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .result-item {
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .result-item span { 
+            color: var(--highlight); 
+            font-weight: bold; 
+            font-size: 1.5rem; 
+            display: block; 
+            margin-top: 5px;
+        }
         
         button {
             background: #000; color: var(--primary-color);
@@ -91,7 +136,7 @@
             text-transform: uppercase;
         }
         button:active { border-style: inset; background: #002200; }
-        .retry-btn { padding: 8px 20px; font-size: 1rem; }
+        .retry-btn { padding: 10px 25px; font-size: 1.1rem; width: 100%; }
 
         /* 2. 정보 패널 */
         #info-panel {
@@ -170,15 +215,26 @@
                 display: grid;
                 /* 왼쪽: 게임(자동), 오른쪽: 정보창(100px 고정) */
                 grid-template-columns: auto 100px;
-                /* 위: 메인영역(꽉채움), 아래: 컨트롤러(자동) */
-                grid-template-rows: 1fr auto;
+                /* 로우 구성: 타이틀(자동) -> 정보창(나머지) -> 컨트롤러(자동) */
+                grid-template-rows: auto 1fr auto;
                 grid-template-areas:
+                    "game title"
                     "game info"
                     "controls controls";
                 gap: 15px;
                 padding: 10px;
                 align-items: center;
                 justify-content: center;
+            }
+
+            /* 타이틀 스타일 (모바일: 우측 상단) */
+            #game-title {
+                grid-area: title;
+                font-size: 1.2rem;
+                text-align: center;
+                align-self: end; /* 아래쪽 정렬 */
+                word-break: keep-all; /* 단어 단위 줄바꿈 */
+                padding-bottom: 5px;
             }
 
             /* 1. 게임 화면 (왼쪽 배치, 크기 확대) */
@@ -199,7 +255,7 @@
                 max-height: 65vh;
                 display: flex;
                 flex-direction: column;
-                justify-content: center; /* 수직 중앙 정렬 */
+                justify-content: flex-start; /* 위쪽 정렬 (타이틀 아래) */
                 gap: 10px;
             }
 
@@ -244,9 +300,19 @@
         /* [PC 모드] 화면 너비 769px 이상 */
         @media (min-width: 769px) {
             #main-container {
-                flex-direction: row; /* 가로 배치 */
-                justify-content: center;
+                flex-wrap: wrap; /* 타이틀을 위로 보내기 위해 랩핑 허용 */
+                align-content: center; /* 전체 내용 수직 중앙 정렬 */
                 gap: 40px;
+                flex-direction: row;
+            }
+
+            /* 타이틀 스타일 (PC: 상단 중앙) */
+            #game-title {
+                width: 100%;
+                text-align: center;
+                font-size: 3rem;
+                margin-bottom: 10px;
+                order: -1; /* 가장 먼저 표시 */
             }
 
             /* 좌측 패널 (점수, 시작 버튼) */
@@ -268,8 +334,8 @@
 
             /* 중앙 게임 화면 */
             #game-wrapper {
-                height: 80vh; /* PC 화면 높이에 맞춤 */
-                max-height: 800px;
+                height: 70vh; /* PC 화면 높이에 맞춤 (타이틀 공간 고려하여 약간 축소) */
+                max-height: 700px;
                 aspect-ratio: 1/2;
             }
 
@@ -296,7 +362,10 @@
 
     <div id="main-container">
         
-        <!-- 좌측 컬럼 (PC: 좌측, Mobile: 우측 상단 그리드) -->
+        <!-- 타이틀 (CSS Grid/Flex로 위치 제어) -->
+        <h1 id="game-title">Y2K<br>Retro<br>Tetris</h1>
+
+        <!-- 좌측 컬럼 (PC: 좌측, Mobile: 우측 정보창 영역) -->
         <div class="left-column">
             <!-- 점수판 -->
             <div id="info-panel">
@@ -316,13 +385,20 @@
             </div>
         </div>
 
-        <!-- 중앙 게임 화면 (PC: 중앙, Mobile: 좌측 상단 그리드) -->
+        <!-- 중앙 게임 화면 -->
         <div id="game-wrapper">
             <canvas id="tetris" width="200" height="400"></canvas>
+            
+            <!-- 게임 오버 팝업 (수정됨) -->
             <div id="game-over">
-                <h2>GAME OVER</h2>
-                <div class="result-info">SCORE <span id="final-score">0</span></div>
-                <button class="retry-btn" onclick="resetGame()">RETRY</button>
+                <div class="popup-box">
+                    <h2>GAME OVER</h2>
+                    <div class="result-info">
+                        <div class="result-item">SCORE <span id="final-score">0</span></div>
+                        <div class="result-item">LINES <span id="final-lines">0</span></div>
+                    </div>
+                    <button class="retry-btn" onclick="resetGame()">RETRY</button>
+                </div>
             </div>
         </div>
 
@@ -337,7 +413,7 @@
             </div>
         </div>
 
-        <!-- 모바일 터치 컨트롤러 (PC 숨김, Mobile: 하단 그리드) -->
+        <!-- 모바일 터치 컨트롤러 (PC 숨김) -->
         <div id="touch-controls">
             <div class="d-pad">
                 <div class="ctrl-btn btn-up" id="btn-up">↑</div>
@@ -360,11 +436,88 @@
         const gameOverDiv = document.getElementById("game-over");
         const startBtn = document.getElementById("start-btn");
         const finalScoreElement = document.getElementById("final-score");
+        const finalLinesElement = document.getElementById("final-lines"); // 라인 스코어 요소 추가
 
         const ROW = 20;
         const COL = 10;
         const SQ = 20; 
         const VACANT = "BLACK"; 
+
+        // --- Web Audio API 사운드 설정 ---
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            // 혹시라도 suspended 상태라면 재개
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'move') {
+                // 짧은 이동 소리
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                gainNode.gain.setValueAtTime(0.05, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'rotate') {
+                // 회전 소리
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                gainNode.gain.setValueAtTime(0.05, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'drop') {
+                // 다운 소리
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, now);
+                gainNode.gain.setValueAtTime(0.05, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'clear') {
+                // 줄 삭제 소리 (띠리링~)
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.setValueAtTime(600, now + 0.1);
+                osc.frequency.setValueAtTime(800, now + 0.2);
+                gainNode.gain.setValueAtTime(0.05, now);
+                gainNode.gain.linearRampToValueAtTime(0.05, now + 0.2);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'gameover') {
+                // 게임오버 소리 (띠~~~웅)
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(10, now + 1.0);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+                osc.start(now);
+                osc.stop(now + 1.0);
+            }
+        }
 
         const PIECES = [
             [Z, "red"],
@@ -548,7 +701,9 @@
                         }
                         if (this.y + r < 0) {
                             gameOver = true;
+                            playSound('gameover');
                             finalScoreElement.innerText = score;
+                            finalLinesElement.innerText = lines; // 최종 라인 수 업데이트
                             gameOverDiv.style.display = "flex";
                             startBtn.innerHTML = "GAME<br>START";
                             isPlaying = false;
@@ -557,6 +712,7 @@
                         board[this.y + r][this.x + c] = this.color;
                     }
                 }
+                let lineCleared = false;
                 for (let r = 0; r < ROW; r++) {
                     let isRowFull = true;
                     for (let c = 0; c < COL; c++) {
@@ -566,6 +722,7 @@
                         }
                     }
                     if (isRowFull) {
+                        lineCleared = true;
                         document.getElementById("game-wrapper").style.borderColor = "#ff00ff";
                         setTimeout(() => document.getElementById("game-wrapper").style.borderColor = "#00ff00", 100);
                         score += 10;
@@ -576,6 +733,13 @@
                         board.unshift(new Array(COL).fill(VACANT));
                     }
                 }
+                
+                if (lineCleared) {
+                    playSound('clear');
+                } else {
+                    playSound('drop');
+                }
+
                 drawBoard();
             }
 
@@ -629,23 +793,27 @@
             if (isPlaying && !gameOver) {
                 p.moveLeft();
                 dropStart = Date.now();
+                playSound('move');
             }
         }
         function controlRight() {
             if (isPlaying && !gameOver) {
                 p.moveRight();
                 dropStart = Date.now();
+                playSound('move');
             }
         }
         function controlRotate() {
             if (isPlaying && !gameOver) {
                 p.rotate();
                 dropStart = Date.now();
+                playSound('rotate');
             }
         }
         function controlDown() {
             if (isPlaying && !gameOver) {
                 p.moveDown();
+                playSound('move'); // 다운 시에도 이동음 재생 (혹은 'drop'으로 구분 가능)
             }
         }
 
@@ -688,6 +856,7 @@
 
         // --- Game Flow ---
         function startGame() {
+            initAudio(); // 오디오 컨텍스트 초기화/재개
             if (isPlaying && !gameOver) return;
             resetGame();
         }

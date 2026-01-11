@@ -1,0 +1,155 @@
+body {
+    background-color: #5b5b5b;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.profile-container {
+    width: 100%;
+    max-width: 480px;
+    height: 100%;
+    background-color: #3c3c3c;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* For footer positioning */
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background-color: #3c3c3c; /* To avoid content scrolling over it */
+}
+
+.close-btn {
+    font-size: 30px;
+}
+
+.header-buttons a {
+    margin-left: 15px;
+    font-size: 14px;
+    border: 1px solid #888;
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+.more-btn {
+    letter-spacing: -2px;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+.profile-content {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-top: 80px; /* Header height */
+    padding-bottom: 70px; /* Footer height */
+}
+
+.profile-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.profile-picture-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.profile-picture {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.kakao-profile-picture {
+    background-image: radial-gradient(circle, #4a5568, #2c3e50);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.kakao-profile-picture::before {
+    content: '👤'; /* Unicode character for user icon */
+    font-size: 80px; /* Adjust size as needed */
+    color: white;
+    opacity: 0.8;
+}
+
+.profile-name {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.archive-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 2px;
+}
+
+.grid-item {
+    aspect-ratio: 1 / 1;
+    background-color: #555;
+}
+
+
+.profile-footer {
+    display: flex;
+    justify-content: space-evenly;
+    border-top: 1px solid #555;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #3c3c3c;
+    z-index: 10;
+}
+
+.profile-footer a {
+    padding: 20px 0;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.profile-footer a:not(:last-child) {
+    border-right: 1px solid #555;
+}
+
+.profile-footer a.disabled {
+    color: #888;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.manage-archive-btn {
+    display: block;
+    width: fit-content;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #FFEB00;
+    color: #191919;
+    border-radius: 20px;
+    font-weight: bold;
+    text-align: center;
+}

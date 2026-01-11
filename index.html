@@ -1,14 +1,46 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="profile.css">
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+    <div class="profile-container">
+        <header class="profile-header">
+            <a href="#" class="close-btn">&times;</a>
+            <div class="header-buttons">
+                <a href="#" class="edit-profile-btn">프로필 편집</a>
+                <a href="#" class="more-btn">&hellip;</a>
+            </div>
+        </header>
+        <div class="profile-content">
+            <main class="profile-main">
+                <div class="profile-picture-container kakao-profile-picture">
+                </div>
+                <h1 class="profile-name">김카페</h1>
+            </main>
+            <div class="archive-grid" style="display: none;">
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <a href="service.html" class="manage-archive-btn">관리</a>
+            </div>
+        </div>
+        <footer class="profile-footer">
+            <a href="#" class="chat-btn">나와의 채팅</a>
+            <a href="#" id="archive-toggle-btn" class="archive-btn">페이 아카이브</a>
+            <a href="#" class="new-post-btn disabled">새 게시물 추가</a>
+        </footer>
+    </div>
+    <script src="profile.js"></script>
 </body>
 </html>

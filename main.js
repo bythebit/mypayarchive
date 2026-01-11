@@ -45,6 +45,37 @@ let piece = {
  
 let score = 0;
 
+function createPiece(type) {
+    if (type === 'I') {
+        return { matrix: [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], color: COLORS[1] };
+    } else if (type === 'J') {
+        return { matrix: [[0,1,0],[0,1,0],[1,1,0]], color: COLORS[2] };
+    } else if (type === 'L') {
+        return { matrix: [[0,1,0],[0,1,0],[0,1,1]], color: COLORS[3] };
+    } else if (type === 'O') {
+        return { matrix: [[1,1],[1,1]], color: COLORS[4] };
+    } else if (type === 'S') {
+        return { matrix: [[0,1,1],[1,1,0],[0,0,0]], color: COLORS[5] };
+    } else if (type === 'T') {
+        return { matrix: [[0,1,0],[1,1,1],[0,0,0]], color: COLORS[6] };
+    } else if (type === 'Z') {
+        return { matrix: [[1,1,0],[0,1,1],[0,0,0]], color: COLORS[7] };
+    }
+}
+
+function drawPiece(matrix, offset, color) {
+    matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                context.fillStyle = color;
+                context.fillRect((offset.x + x) * BLOCK_SIZE, (offset.y + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                context.strokeStyle = '#222';
+                context.strokeRect((offset.x + x) * BLOCK_SIZE, (offset.y + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            }
+        });
+    });
+}
+
 
 function draw() {
     // Clear the board
@@ -58,11 +89,57 @@ function draw() {
             context.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
         }
     }
+
+    // Draw the settled pieces on the board
+    board.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                context.fillStyle = COLORS[value];
+                context.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                context.strokeStyle = '#222';
+                context.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            }
+        });
+    });
+
+    // Draw the current falling piece
+    if (piece.matrix) {
+        drawPiece(piece.matrix, piece.pos, piece.color);
+    }
+}
+
+function collide(board, piece) {
+    for (let y = 0; y < piece.matrix.length; ++y) {
+        for (let x = 0; x < piece.matrix[y].length; ++x) {
+            if (piece.matrix[y][x] !== 0 &&
+                (board[y + piece.pos.y] &&
+                board[y + piece.pos.y][x + piece.pos.x]) !== 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function merge(board, piece) {
+    piece.matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                board[y + piece.pos.y][x + piece.pos.x] = value;
+            }
+        });
+    });
 }
 
 function update() {
     draw();
     requestAnimationFrame(update);
 }
+
+// Generate the first piece when the game starts
+const pieceTypes = 'IJLOSTZ';
+piece = createPiece(pieceTypes[pieceTypes.length * Math.random() | 0]);
+piece.pos.x = (BOARD_WIDTH / 2 | 0) - (piece.matrix[0].length / 2 | 0);
+piece.pos.y = 0;
 
 update();

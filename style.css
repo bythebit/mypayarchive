@@ -1,105 +1,90 @@
-:root {
-    --primary-color: #333;
-    --secondary-color: #777;
-    --background-color: #f4f4f4;
-    --surface-color: #fff;
-    --border-color: #ddd;
+/* 구름 스타일 */
+#clouds {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    background-color: var(--background-color);
-    color: var(--primary-color);
+.cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
 }
 
-header {
-    background-color: var(--surface-color);
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--border-color);
-    text-align: center;
+.cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
 }
 
-header h1 {
-    margin: 0;
+.cloud1 {
+    width: 100px;
+    height: 100px;
+    top: 10%;
+    animation: animateCloud 35s linear infinite;
+}
+.cloud1::before {
+    width: 60px;
+    height: 60px;
+    bottom: 10px;
+    left: -30px;
+}
+.cloud1::after {
+    width: 80px;
+    height: 80px;
+    bottom: 10px;
+    right: -40px;
 }
 
-nav a {
-    color: var(--primary-color);
-    text-decoration: none;
-    margin: 0 1rem;
+.cloud2 {
+    width: 120px;
+    height: 120px;
+    top: 30%;
+    animation: animateCloud 45s linear infinite;
+}
+.cloud2::before {
+    width: 70px;
+    height: 70px;
+    bottom: 15px;
+    left: -40px;
+}
+.cloud2::after {
+    width: 90px;
+    height: 90px;
+    bottom: 15px;
+    right: -50px;
 }
 
-nav a:hover {
-    text-decoration: underline;
+.cloud3 {
+    width: 80px;
+    height: 80px;
+    top: 50%;
+    animation: animateCloud 55s linear infinite;
+}
+.cloud3::before {
+    width: 50px;
+    height: 50px;
+    bottom: 8px;
+    left: -25px;
+}
+.cloud3::after {
+    width: 70px;
+    height: 70px;
+    bottom: 8px;
+    right: -35px;
 }
 
-main {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-.post-list {
-    display: grid;
-    gap: 1.5rem;
-}
-
-.post-preview {
-    background-color: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.post-preview h2 a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.post-preview h2 a:hover {
-    text-decoration: underline;
-}
-
-.post-meta {
-    color: var(--secondary-color);
-    font-size: 0.9rem;
-}
-
-footer {
-    text-align: center;
-    padding: 1rem 0;
-    margin-top: 2rem;
-    color: var(--secondary-color);
-    font-size: 0.9rem;
-}
-
-/* Full Post Styles */
-.post-full {
-    background-color: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.post-header {
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.post-title {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.post-content {
-    font-size: 1.1rem;
-}
-
-.post-content h2 {
-    font-size: 1.8rem;
-    margin-top: 2rem;
+@keyframes animateCloud {
+    0% {
+        transform: translateX(-150%);
+    }
+    100% {
+        transform: translateX(150%);
+    }
 }

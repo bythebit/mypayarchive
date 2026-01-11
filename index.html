@@ -2,49 +2,24 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>개인 금융 블로그</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>사과 받기 게임</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>개인 금융 블로그</h1>
-        <nav>
-            <a href="index.html">홈</a>
-            <a href="#">소개</a>
-            <a href="#">연락처</a>
-        </nav>
-    </header>
-
-    <main>
-        <section class="post-list">
-            <article class="post-preview">
-                <h2><a href="post.html">블로그 게시물 제목 1</a></h2>
-                <p class="post-meta">2026년 1월 11일 게시</p>
-                <p>이것은 블로그 게시물 1의 발췌문입니다...</p>
-            </article>
-            <article class="post-preview">
-                <h2><a href="post.html">블로그 게시물 제목 2</a></h2>
-                <p class="post-meta">2026년 1월 10일 게시</p>
-                <p>이것은 블로그 게시물 2의 발췌문입니다...</p>
-            </article>
-            <article class="post-preview">
-                <h2><a href="post.html">블로그 게시물 제목 3</a></h2>
-                <p class="post-meta">2026년 1월 9일 게시</p>
-                <p>이것은 블로그 게시물 3의 발췌문입니다...</p>
-            </article>
-            <article class="post-preview">
-                <h2><a href="post.html">블로그 게시물 제목 4</a></h2>
-                <p class="post-meta">2026년 1월 8일 게시</p>
-                <p>이것은 블로그 게시물 4의 발췌문입니다...</p>
-            </article>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2026 개인 금융 블로그. 모든 권리 보유.</p>
-    </footer>
-
+    <div id="game-container">
+        <div id="clouds">
+            <div class="cloud cloud1"></div>
+            <div class="cloud cloud2"></div>
+            <div class="cloud cloud3"></div>
+        </div>
+        <div id="score">점수: 0</div>
+        <div id="player"></div>
+    </div>
+    <div id="touch-controls">
+        <div class="touch-zone" id="touch-left"></div>
+        <div class="touch-zone" id="touch-right"></div>
+    </div>
     <script src="main.js"></script>
 </body>
 </html>

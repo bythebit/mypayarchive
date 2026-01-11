@@ -65,7 +65,6 @@
             background-color: var(--panel-bg);
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
             image-rendering: pixelated;
-            /* Flex item properties set in media queries */
         }
 
         #tetris {
@@ -236,19 +235,16 @@
                 grid-area: main;
                 display: flex;
                 flex-direction: column;
-                /* 너비를 게임창의 aspect-ratio에 맞춤 */
-                width: min-content; 
-                justify-self: end; /* 우측 정렬 (사이드바 쪽으로) */
-                height: 100%;
-                max-height: 75vh;
+                /* [수정] min-content 대신 게임창 높이(75vh)에 비례한 너비(37.5vh)를 고정 */
+                width: 37.5vh; 
+                max-width: 100%; /* 부모보다 커지지 않게 제한 */
+                justify-self: end;
             }
 
             #game-wrapper {
-                width: 100%; /* 부모(min-content)에 맞춤 */
-                height: auto;
-                aspect-ratio: 1/2; /* 비율 유지하며 높이에 따라 너비 결정 */
-                flex-grow: 1; /* 남은 높이 차지 */
-                max-height: 100%;
+                width: 100%;
+                aspect-ratio: 1/2; /* 가로세로 1:2 유지 */
+                /* 높이는 aspect-ratio에 의해 자동 결정 */
             }
 
             /* 화살표 컨트롤러 (게임창 바로 아래, 너비 동일) */
@@ -262,21 +258,21 @@
             .side-panel {
                 grid-area: side;
                 height: 100%;
-                max-height: 75vh; /* 좌측과 높이 동기화 */
-                justify-content: space-between; /* 상단 정보, 하단 회전버튼 분산 */
+                /* 게임창의 최대 높이와 동일하게 맞춤 */
+                max-height: 75vh; 
+                justify-content: space-between; 
+                /* 사이드바도 상단 높이 시작점 맞춤 */
+                margin-top: 0;
             }
 
-            /* 사이드바 내부 상단 그룹 */
             .side-top-group {
                 display: flex;
                 flex-direction: column;
                 gap: 8px;
             }
 
-            /* 회전 버튼 (사이드바 하단) */
             #mobile-rotate {
-                margin-bottom: 0; /* 화살표 버튼과 수평 맞춤 */
-                /* 화살표 높이(65px)와 비슷하게 위치 조정 */
+                margin-bottom: 0;
                 height: 65px; 
                 display: flex;
                 align-items: center;
@@ -311,9 +307,8 @@
                 gap: 40px; 
             }
             
-            /* PC에서는 Wrapper가 직접 배치되므로 기본값 사용 */
             #left-column {
-                display: contents; /* 래퍼 역할 제거 */
+                display: contents; /* PC에선 래퍼 무시 */
             }
 
             #game-wrapper {
@@ -350,7 +345,7 @@
         
         <h1 id="mobile-title">Y2K Retro Tetris</h1>
 
-        <!-- 좌측 그룹 (모바일에서 게임창+화살표를 묶어서 정렬) -->
+        <!-- 좌측 그룹 (모바일: 게임창 + 화살표) -->
         <div id="left-column">
             <div id="game-wrapper">
                 <canvas id="tetris" width="200" height="400"></canvas>

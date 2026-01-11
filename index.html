@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>사과 받기 게임</title>
+    <title>사과 받기 픽셀 게임</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container">
-        <div id="clouds">
-            <div class="cloud cloud1"></div>
-            <div class="cloud cloud2"></div>
-            <div class="cloud cloud3"></div>
+    <div id="game-wrapper">
+        <canvas id="game-canvas" width="560" height="600"></canvas>
+        <div id="game-overlay">
+            <h1 id="title-text">사과 받기</h1>
+            <button id="start-button">START</button>
+            <div id="game-over-screen" style="display: none;">
+                <h2>GAME OVER</h2>
+            </div>
         </div>
-        <div id="score">점수: 0</div>
-        <div id="player"></div>
-    </div>
-    <div id="touch-controls">
-        <div class="touch-zone" id="touch-left"></div>
-        <div class="touch-zone" id="touch-right"></div>
     </div>
     <script src="main.js"></script>
 </body>

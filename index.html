@@ -2,21 +2,703 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>사과 받기 픽셀 게임</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Y2K TETRIS 2000</title>
+    <style>
+        /* 2000년대 사이버 펑크/레트로 스타일 */
+        body {
+            background-color: #000000;
+            color: #00ff00;
+            font-family: "Courier New", Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* 스크롤 방지 */
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            touch-action: none; /* 모바일 터치 제스처 방지 */
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+        }
+
+        #game-wrapper {
+            display: flex;
+            border: 4px solid #00ff00;
+            padding: 10px;
+            background-color: #111;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            position: relative;
+        }
+
+        /* 캔버스 테두리 효과 */
+        canvas {
+            border: 2px solid #555;
+            background-color: #000;
+            display: block;
+        }
+
+        #ui-panel {
+            margin-left: 20px;
+            width: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 400px; /* 캔버스 높이와 맞춤 */
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 0 0 20px 0;
+            text-align: center;
+            text-shadow: 2px 2px #ff00ff;
+            line-height: 1.2;
+        }
+
+        .stat-box {
+            border: 1px solid #00ff00;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #001100;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #ff00ff;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        #controls-info {
+            font-size: 11px;
+            line-height: 1.5;
+            color: #aaa;
+            border-top: 1px dashed #555;
+            padding-top: 10px;
+            margin-top: auto;
+        }
+
+        /* 레트로 버튼 스타일 */
+        button {
+            background-color: #000;
+            color: #00ff00;
+            border: 2px outset #00ff00;
+            padding: 10px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            text-transform: uppercase;
+            -webkit-tap-highlight-color: transparent; /* 모바일 탭 하이라이트 제거 */
+        }
+
+        button:active {
+            border: 2px inset #00ff00;
+            background-color: #003300;
+        }
+
+        /* 게임 오버 오버레이 */
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        #game-over h2 {
+            font-size: 30px;
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+            margin-bottom: 20px;
+            animation: blink 1s infinite;
+        }
+
+        .result-box {
+            border: 2px solid #00ff00;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #001100;
+            text-align: center;
+            width: 70%;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .result-box p {
+            margin: 10px 0;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .result-box span {
+            color: #ff00ff;
+            font-weight: bold;
+            font-size: 20px;
+            display: block;
+            margin-top: 5px;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* 모바일 컨트롤러 (기본 숨김) */
+        #mobile-controls {
+            display: none;
+            width: 100%;
+            margin-top: 15px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .d-pad-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #111;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            box-shadow: 0 0 5px #00ff00;
+            user-select: none;
+        }
+
+        .d-pad-btn:active {
+            background: #003300;
+            box-shadow: inset 0 0 5px #00ff00;
+        }
+
+        .rotate-btn {
+            border-color: #ff00ff;
+            color: #ff00ff;
+            box-shadow: 0 0 5px #ff00ff;
+        }
+        
+        .rotate-btn:active {
+            background: #330033;
+        }
+
+        /* 모바일 반응형 스타일 */
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            #game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #game-wrapper {
+                flex-direction: column;
+                align-items: center;
+                border: none;
+                background: transparent;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            canvas {
+                border: 2px solid #00ff00;
+                box-shadow: 0 0 10px rgba(0,255,0,0.3);
+            }
+
+            #ui-panel {
+                width: 100%;
+                height: auto;
+                margin-left: 0;
+                margin-top: 10px;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 10px;
+                box-sizing: border-box;
+            }
+
+            #ui-panel > div {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            h1 { display: none; } /* 모바일에서 공간 절약을 위해 제목 숨김 */
+
+            .stat-box {
+                margin-bottom: 0;
+                padding: 5px 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-width: 60px;
+            }
+            
+            .stat-value { font-size: 16px; }
+
+            #controls-info { display: none; } /* PC용 컨트롤 설명 숨김 */
+
+            #start-btn {
+                width: auto;
+                padding: 8px 20px;
+                margin-top: 0;
+                font-size: 14px;
+            }
+
+            #mobile-controls {
+                display: flex; /* 모바일에서 컨트롤러 표시 */
+                padding: 0 20px;
+                box-sizing: border-box;
+                max-width: 300px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="game-wrapper">
-        <canvas id="game-canvas" width="560" height="600"></canvas>
-        <div id="game-overlay">
-            <h1 id="title-text">사과 받기</h1>
-            <button id="start-button">START</button>
-            <div id="game-over-screen" style="display: none;">
+
+    <div id="game-container">
+        <div id="game-wrapper">
+            <canvas id="tetris" width="240" height="400"></canvas>
+            
+            <div id="game-over">
                 <h2>GAME OVER</h2>
+                <div class="result-box">
+                    <p>FINAL SCORE<br><span id="final-score">0</span></p>
+                    <p>TOTAL LINES<br><span id="final-lines">0</span></p>
+                </div>
+                <button onclick="resetGame()">TRY AGAIN</button>
+            </div>
+        </div>
+
+        <div id="ui-panel">
+            <div>
+                <h1>Y2K<br>TETRIS</h1>
+                <div class="stat-box">
+                    <div class="stat-label">SCORE</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">LINES</div>
+                    <div class="stat-value" id="lines">0</div>
+                </div>
+            </div>
+
+            <div>
+                <button id="start-btn" onclick="startGame()">Start</button>
+                <div id="controls-info">
+                    <br>
+                    [PC Controls]<br>
+                    ← → : Move<br>
+                    ↑ : Rotate<br>
+                    ↓ : Drop
+                </div>
             </div>
         </div>
     </div>
-    <script src="main.js"></script>
+
+    <!-- 모바일 컨트롤러 -->
+    <div id="mobile-controls">
+        <div class="control-group">
+            <div class="d-pad-btn" id="btn-left">←</div>
+            <div class="d-pad-btn" id="btn-down">↓</div>
+            <div class="d-pad-btn" id="btn-right">→</div>
+        </div>
+        <div class="control-group">
+            <div class="d-pad-btn rotate-btn" id="btn-rotate">↻</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("tetris");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("score");
+        const linesElement = document.getElementById("lines");
+        const gameOverDiv = document.getElementById("game-over");
+        const startBtn = document.getElementById("start-btn");
+        
+        const finalScoreElement = document.getElementById("final-score");
+        const finalLinesElement = document.getElementById("final-lines");
+
+        const ROW = 20;
+        const COL = 10;
+        const SQ = 20; 
+        const VACANT = "BLACK"; 
+
+        const PIECES = [
+            [Z, "red"],
+            [S, "green"],
+            [T, "purple"],
+            [O, "yellow"],
+            [L, "orange"],
+            [I, "cyan"],
+            [J, "blue"]
+        ];
+
+        // Tetromino shapes (I, J, L, O, S, T, Z)
+        const I_tetromino = [
+            [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
+            [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
+            [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
+            [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]]
+        ];
+        const J_tetromino = [
+            [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
+            [[0, 1, 1], [0, 1, 0], [0, 1, 0]],
+            [[0, 0, 0], [1, 1, 1], [0, 0, 1]],
+            [[0, 1, 0], [0, 1, 0], [1, 1, 0]]
+        ];
+        const L_tetromino = [
+            [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
+            [[0, 1, 0], [0, 1, 0], [0, 1, 1]],
+            [[0, 0, 0], [1, 1, 1], [1, 0, 0]],
+            [[1, 1, 0], [0, 1, 0], [0, 1, 0]]
+        ];
+        const O_tetromino = [
+            [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]]
+        ];
+        const S_tetromino = [
+            [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
+            [[0, 1, 0], [0, 1, 1], [0, 0, 1]],
+            [[0, 0, 0], [0, 1, 1], [1, 1, 0]],
+            [[1, 0, 0], [1, 1, 0], [0, 1, 0]]
+        ];
+        const T_tetromino = [
+            [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
+            [[0, 1, 0], [0, 1, 1], [0, 1, 0]],
+            [[0, 0, 0], [1, 1, 1], [0, 1, 0]],
+            [[0, 1, 0], [1, 1, 0], [0, 1, 0]]
+        ];
+        const Z_tetromino = [
+            [[1, 1, 0], [0, 1, 1], [0, 0, 0]],
+            [[0, 0, 1], [0, 1, 1], [0, 1, 0]],
+            [[0, 0, 0], [1, 1, 0], [0, 1, 1]],
+            [[0, 1, 0], [1, 1, 0], [1, 0, 0]]
+        ];
+
+        function Z() { return Z_tetromino; }
+        function S() { return S_tetromino; }
+        function T() { return T_tetromino; }
+        function O() { return O_tetromino; }
+        function L() { return L_tetromino; }
+        function I() { return I_tetromino; }
+        function J() { return J_tetromino; }
+
+        let board = [];
+        let score = 0;
+        let lines = 0;
+        let p; 
+        let dropStart = Date.now();
+        let gameOver = false;
+        let isPlaying = false;
+        let requestAnimationId = null;
+
+        function initBoard() {
+            for (let r = 0; r < ROW; r++) {
+                board[r] = [];
+                for (let c = 0; c < COL; c++) {
+                    board[r][c] = VACANT;
+                }
+            }
+        }
+
+        function drawSquare(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * SQ, y * SQ, SQ, SQ);
+
+            if (color !== VACANT) {
+                ctx.strokeStyle = "rgba(0,0,0,0.3)";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x * SQ, y * SQ, SQ, SQ);
+                
+                ctx.fillStyle = "rgba(255,255,255,0.3)";
+                ctx.fillRect(x * SQ + 2, y * SQ + 2, 4, 4);
+            } else {
+                ctx.strokeStyle = "#111";
+                ctx.strokeRect(x * SQ, y * SQ, SQ, SQ);
+            }
+        }
+
+        function drawBoard() {
+            for (let r = 0; r < ROW; r++) {
+                for (let c = 0; c < COL; c++) {
+                    drawSquare(c, r, board[r][c]);
+                }
+            }
+        }
+
+        class Piece {
+            constructor(tetromino, color) {
+                this.tetromino = tetromino;
+                this.color = color;
+                this.tetrominoN = 0;
+                this.activeTetromino = this.tetromino[this.tetrominoN];
+                this.x = 3;
+                this.y = -2;
+            }
+
+            fill(color) {
+                for (let r = 0; r < this.activeTetromino.length; r++) {
+                    for (let c = 0; c < this.activeTetromino.length; c++) {
+                        if (this.activeTetromino[r][c]) {
+                            if(this.y + r >= 0) {
+                                drawSquare(this.x + c, this.y + r, color);
+                            }
+                        }
+                    }
+                }
+            }
+
+            draw() { this.fill(this.color); }
+            unDraw() { this.fill(VACANT); }
+
+            moveDown() {
+                if (!this.collision(0, 1, this.activeTetromino)) {
+                    this.unDraw();
+                    this.y++;
+                    this.draw();
+                } else {
+                    this.lock();
+                    p = randomPiece();
+                }
+            }
+
+            moveRight() {
+                if (!this.collision(1, 0, this.activeTetromino)) {
+                    this.unDraw();
+                    this.x++;
+                    this.draw();
+                }
+            }
+
+            moveLeft() {
+                if (!this.collision(-1, 0, this.activeTetromino)) {
+                    this.unDraw();
+                    this.x--;
+                    this.draw();
+                }
+            }
+
+            rotate() {
+                let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+                let kick = 0;
+
+                if (this.collision(0, 0, nextPattern)) {
+                    if (this.x > COL / 2) { kick = -1; } 
+                    else { kick = 1; }
+                }
+
+                if (!this.collision(kick, 0, nextPattern)) {
+                    this.unDraw();
+                    this.x += kick;
+                    this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
+                    this.activeTetromino = this.tetromino[this.tetrominoN];
+                    this.draw();
+                }
+            }
+
+            lock() {
+                for (let r = 0; r < this.activeTetromino.length; r++) {
+                    for (let c = 0; c < this.activeTetromino.length; c++) {
+                        if (!this.activeTetromino[r][c]) {
+                            continue;
+                        }
+                        if (this.y + r < 0) {
+                            gameOver = true;
+                            finalScoreElement.innerText = score;
+                            finalLinesElement.innerText = lines;
+                            gameOverDiv.style.display = "flex";
+                            isPlaying = false;
+                            return;
+                        }
+                        board[this.y + r][this.x + c] = this.color;
+                    }
+                }
+                for (let r = 0; r < ROW; r++) {
+                    let isRowFull = true;
+                    for (let c = 0; c < COL; c++) {
+                        if (board[r][c] === VACANT) {
+                            isRowFull = false;
+                            break;
+                        }
+                    }
+                    if (isRowFull) {
+                        document.getElementById("game-wrapper").style.borderColor = "#ff00ff";
+                        setTimeout(() => document.getElementById("game-wrapper").style.borderColor = "#00ff00", 100);
+                        score += 10;
+                        lines += 1;
+                        scoreElement.innerText = score;
+                        linesElement.innerText = lines;
+                        board.splice(r, 1);
+                        board.unshift(new Array(COL).fill(VACANT));
+                    }
+                }
+                drawBoard();
+            }
+
+            collision(x, y, piece) {
+                for (let r = 0; r < piece.length; r++) {
+                    for (let c = 0; c < piece.length; c++) {
+                        if (!piece[r][c]) {
+                            continue;
+                        }
+                        let newX = this.x + c + x;
+                        let newY = this.y + r + y;
+
+                        if (newX < 0 || newX >= COL || newY >= ROW) {
+                            return true;
+                        }
+                        if (newY < 0) {
+                            continue;
+                        }
+                        if (board[newY][newX] !== VACANT) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
+        function randomPiece() {
+            let r = Math.floor(Math.random() * PIECES.length);
+            return new Piece(PIECES[r][0](), PIECES[r][1]);
+        }
+
+        function drop() {
+            if (!isPlaying) return;
+
+            let now = Date.now();
+            let delta = now - dropStart;
+            let speed = Math.max(200, 1000 - (lines * 20)); 
+
+            if (delta > speed) {
+                p.moveDown();
+                dropStart = Date.now();
+            }
+            if (!gameOver) {
+                requestAnimationId = requestAnimationFrame(drop);
+            }
+        }
+
+        // --- Controls Logic ---
+
+        function controlLeft() {
+            if (isPlaying && !gameOver) {
+                p.moveLeft();
+                dropStart = Date.now();
+            }
+        }
+
+        function controlRight() {
+            if (isPlaying && !gameOver) {
+                p.moveRight();
+                dropStart = Date.now();
+            }
+        }
+
+        function controlRotate() {
+            if (isPlaying && !gameOver) {
+                p.rotate();
+                dropStart = Date.now();
+            }
+        }
+
+        function controlDown() {
+            if (isPlaying && !gameOver) {
+                p.moveDown();
+            }
+        }
+
+        // Keyboard Event Listeners
+        document.addEventListener("keydown", (event) => {
+            if (!isPlaying || gameOver) return;
+            if (event.keyCode === 37) controlLeft();
+            else if (event.keyCode === 38) controlRotate();
+            else if (event.keyCode === 39) controlRight();
+            else if (event.keyCode === 40) controlDown();
+        });
+
+        // Touch Event Listeners (Mobile)
+        // preventDefault helps prevent scrolling or double-tap zoom while playing
+        function addTouchListener(id, action) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('touchstart', (e) => {
+                    e.preventDefault(); 
+                    action();
+                }, {passive: false});
+                
+                // Mouse event for testing on desktop browser resizing
+                el.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    action();
+                });
+            }
+        }
+
+        addTouchListener('btn-left', controlLeft);
+        addTouchListener('btn-right', controlRight);
+        addTouchListener('btn-rotate', controlRotate);
+        addTouchListener('btn-down', controlDown);
+
+        // --- Game Flow ---
+
+        function startGame() {
+            if (isPlaying && !gameOver) return;
+            resetGame();
+        }
+
+        function resetGame() {
+            initBoard();
+            drawBoard();
+            score = 0;
+            lines = 0;
+            scoreElement.innerText = score;
+            linesElement.innerText = lines;
+            gameOver = false;
+            gameOverDiv.style.display = "none";
+            startBtn.innerText = "Running...";
+            
+            if (requestAnimationId) cancelAnimationFrame(requestAnimationId);
+            
+            p = randomPiece();
+            isPlaying = true;
+            dropStart = Date.now();
+            drop();
+        }
+
+        initBoard();
+        drawBoard();
+
+    </script>
 </body>
 </html>

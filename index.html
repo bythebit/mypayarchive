@@ -204,22 +204,24 @@
         /* 십자키 스타일 수정 (Flex로 가로 배치) */
         .d-pad {
             display: flex;
-            justify-content: center;
+            justify-content: space-between; /* 양 끝 정렬로 변경 */
             align-items: center;
-            gap: 15px; /* 버튼 사이 간격 */
+            width: 100%; /* 게임창 너비에 맞춤 */
         }
         
         .ctrl-btn {
             background: #111; border: 2px solid var(--primary-color); color: var(--primary-color);
             border-radius: 10px; display: flex; justify-content: center; align-items: center;
-            /* 기본 크기는 미디어 쿼리에서 재정의 */
             font-weight: bold; box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
         }
         .ctrl-btn:active { background: #004400; transform: scale(0.95); }
         
-        .rotate-wrapper { width: 90px; height: 90px; display: flex; justify-content: center; align-items: center; }
+        .rotate-wrapper { 
+            display: flex; justify-content: center; align-items: center; 
+            /* 모바일에서 d-pad 안에 포함되도록 구조 변경 */
+        }
         .btn-rotate {
-            width: 80px; height: 80px; border-radius: 50%;
+            border-radius: 50%;
             border-color: var(--highlight); color: var(--highlight);
             font-size: 2rem;
         }
@@ -239,7 +241,7 @@
                 grid-area: title;
                 font-size: 1.5rem; 
                 margin-bottom: 5px; 
-                white-space: nowrap; /* 1줄 고정 */
+                white-space: nowrap; 
             }
 
             #main-container {
@@ -251,10 +253,10 @@
                 grid-template-areas:
                     "title title"
                     "game side"
-                    "controls controls";
+                    "controls side"; /* 사이드바가 컨트롤러 영역까지 내려오도록 설정 */
                 gap: 10px;
                 padding: 10px;
-                align-items: center;
+                align-items: start; /* 상단 정렬 */
                 justify-content: center;
                 height: 100%;
             }
@@ -262,32 +264,65 @@
             #game-wrapper {
                 grid-area: game;
                 height: 100%;
-                max-height: 60vh; /* 타이틀 공간 고려하여 약간 축소 */
+                /* 게임창 크기 복구 (75vh) */
+                max-height: 75vh; 
                 aspect-ratio: 1/2; 
-                justify-self: end; 
+                justify-self: end; /* 우측(사이드바 쪽) 정렬 */
+                align-self: end; /* 아래쪽(컨트롤러 쪽) 정렬 */
             }
 
             .side-panel {
                 grid-area: side;
                 height: 100%;
-                max-height: 60vh;
-                justify-content: flex-start; /* 상단 정렬 */
+                /* 사이드바도 게임창 높이에 맞춰 꽉 차게 */
+                max-height: 75vh; 
+                justify-content: flex-start; /* 상단부터 배치 */
                 gap: 8px;
+                /* 게임창 상단과 맞추기 위해 약간의 마진 조정이 필요할 수 있음 */
+                align-self: end; /* 게임창과 하단 라인 맞춤 (상단은 내용물에 따라) */
+                /* 혹은 게임창 상단과 맞추려면 align-self: start 사용 */
+                align-self: start; 
+                margin-top: 0; /* 게임창과 상단 라인 일치 */
             }
             
+            /* 게임창이 세로 중앙 정렬되도록 조정 */
+            #game-wrapper {
+                align-self: start;
+            }
+
             #touch-controls {
                 grid-area: controls;
                 display: flex;
-                max-width: 400px;
-                justify-self: center;
-                margin-bottom: 1vh; 
+                /* 너비를 게임창과 동일하게 맞춤 (게임창이 justify-self: end이므로 얘도 end) */
+                width: 100%;
+                max-width: 37.5vh; /* 75vh * 0.5 = 37.5vh (게임창 너비) */
+                justify-self: end; 
+                margin-top: 10px; 
+                margin-bottom: 2vh; 
+                padding: 0;
             }
             
-            /* 모바일 버튼 크기 조정 (50% 확대) */
+            /* 모바일 버튼 크기 및 배치 조정 */
+            .d-pad {
+                width: 100%; /* 부모(게임창 너비)에 꽉 차게 */
+                gap: 5px;
+            }
+
             .ctrl-btn {
-                width: 65px; 
-                height: 65px;
-                font-size: 2rem;
+                width: 60px; 
+                height: 60px;
+                font-size: 1.8rem;
+                flex-shrink: 0;
+            }
+            
+            /* 회전 버튼을 화살표 우측에 배치 (d-pad 안에 넣기 위함) */
+            .rotate-wrapper {
+                display: block; /* 모바일에서만 보임 */
+            }
+            .btn-rotate {
+                width: 60px;
+                height: 60px;
+                font-size: 1.8rem;
             }
 
             #pc-guide-wrapper { display: none; }
@@ -341,11 +376,11 @@
 <body>
 
     <!-- 1. PC 전용 타이틀 -->
-    <h1 id="pc-title">Y2K<br>Retro<br>Tetris</h1>
+    <h1 id="pc-title">Y2K Retro Tetris</h1>
 
     <div id="main-container">
         
-        <!-- 2. 모바일 전용 타이틀 (메인 컨테이너 내부, Grid 배치용) -->
+        <!-- 2. 모바일 전용 타이틀 -->
         <h1 id="mobile-title">Y2K Retro Tetris</h1>
 
         <!-- 게임 화면 -->
@@ -365,30 +400,20 @@
 
         <!-- 사이드 패널 -->
         <div class="side-panel">
-            
-            <!-- Start Button -->
             <div id="start-btn-wrapper">
                 <button id="start-btn" onclick="startGame()">GAME<br>START</button>
             </div>
-
-            <!-- Sound Toggle -->
             <button id="sound-btn" onclick="toggleSound()">SOUND: ON</button>
-
-            <!-- Score Panel -->
             <div id="score-panel" class="info-box">
                 <div class="info-label">SCORE</div>
                 <div class="info-value" id="score">0</div>
                 <div style="margin-top: 10px;" class="info-label">LINES</div>
                 <div class="info-value" id="lines">0</div>
             </div>
-
-            <!-- Next Piece Panel -->
             <div id="next-piece-panel" class="info-box">
                 <div class="info-label">NEXT</div>
                 <canvas id="next-canvas" width="80" height="80"></canvas>
             </div>
-
-            <!-- PC Controls Guide -->
             <div id="pc-guide-wrapper">
                 <div id="pc-guide">
                     <h3>CONTROLS</h3>
@@ -401,13 +426,12 @@
 
         <!-- 모바일 터치 컨트롤러 (하단) -->
         <div id="touch-controls">
-            <!-- 십자키 -> 가로형 화살표로 변경 -->
+            <!-- 3개 화살표 + 회전 버튼을 일렬로 배치 -->
             <div class="d-pad">
                 <div class="ctrl-btn" id="btn-left">←</div>
                 <div class="ctrl-btn" id="btn-down">↓</div>
                 <div class="ctrl-btn" id="btn-right">→</div>
-            </div>
-            <div class="rotate-wrapper">
+                <!-- 회전 버튼을 컨트롤러 박스 안에 포함시켜 너비 맞춤 -->
                 <button class="ctrl-btn btn-rotate" id="btn-rotate">↻</button>
             </div>
         </div>

@@ -1,18 +1,32 @@
-# Lotto Number Picker Webpage
+# 경제 블로그 웹사이트
 
-## 1. Service Definition
-A simple web application that generates random numbers for a lottery game, specifically targeting typical 6/45 lotto rules.
+## 개요
+이 프로젝트의 목표는 현대적이고 반응이 빠른 개인 금융 블로그 웹사이트를 만드는 것입니다. 이 사이트는 HTML, CSS 및 JavaScript를 사용하여 구축되며 외부 프레임워크는 없습니다.
 
-## 2. Planning Intent
-To provide users with a quick and easy way to generate a set of random lotto numbers.
+## 설계
+디자인은 깨끗하고 전문적이며 모바일 친화적이며 기사의 가독성에 중점을 둡니다.
 
-## 3. Core Features
-*   **Number Generation:** Generates 6 unique random numbers between 1 and 45.
-*   **Display:** Visually presents the generated numbers in distinct circles.
-*   **User Interface:** A clear button to trigger number generation.
+- **색상 팔레트:**
+    - 기본 색상: `#333` (어두운 회색)
+    - 보조 색상: `#777` (회색)
+    - 배경색: `#f4f4f4` (밝은 회색)
+    - 표면 색상: `#fff` (흰색)
+    - 테두리 색상: `#ddd` (밝은 회색)
+- **타이포그래피:**
+    - 글꼴 모음: 시스템 기본 UI 글꼴.
+    - 줄 높이: 1.6
+- **레이아웃:**
+    - 최대 너비 800px의 중앙에 콘텐츠가 있는 반응형 레이아웃.
+    - 게시물 미리 보기를 위한 카드 기반 디자인.
 
-## 4. UI/UX Design Strategy
-*   **Clean & Simple:** Focus on a straightforward and intuitive interface.
-*   **Color Scheme:** Uses a pleasant background and distinct colors for numbers and buttons.
-*   **Responsive:** Basic responsiveness to ensure usability on different screen sizes.
-*   **Interactivity:** A single prominent button for generating numbers.
+## 기능
+- 블로그 기사 목록이 포함된 홈페이지.
+- 기사를 읽을 수 있는 개별 페이지.
+- 웹 구성 요소를 사용하는 재사용 가능한 구성 요소(예: 머리글 및 바닥글).
+
+## 현재 계획
+- 1단계: 프로젝트 구조를 설정합니다.
+- 2단계: 기본 HTML, CSS 및 JavaScript 파일을 만듭니다.
+- 3단계: 자리 표시자 블로그 콘텐츠를 추가합니다.
+- 4단계: 웹 사이트 스타일을 지정합니다.
+- 5단계: 기능(예: 게시물 간 탐색)을 추가합니다.
